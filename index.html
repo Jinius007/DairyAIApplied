@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Herd Signal</title>
-<meta name="description" content="A live-tracked, function-by-function map of AI and ML breakthroughs across the global dairy industry — filterable by day, week, month, year, function, region and company/co-op.">
+<meta name="description" content="A live-tracked, function-by-function map of AI and ML breakthroughs across the global dairy industry over the last 2 years — filterable by day, week, month, year, function, region and company/co-op.">
 <style>
   /* ===================== TOKENS ===================== */
   :root{
@@ -373,9 +373,9 @@
   <section class="charts">
     <div class="wrap" style="display:grid;grid-template-columns:1.35fr 1fr;gap:18px;">
       <div class="card">
-        <h3>Momentum — last 12 months</h3>
+        <h3>Momentum — last 24 months</h3>
         <div class="chart-scroll" style="position:relative;">
-          <svg id="trendSvg" viewBox="0 0 640 150" preserveAspectRatio="none"></svg>
+          <svg id="trendSvg" viewBox="0 0 1180 150" preserveAspectRatio="none" style="min-width:760px;"></svg>
           <div class="trend-tip" id="trendTip"></div>
         </div>
       </div>
@@ -484,6 +484,11 @@
     {id:"h4",date:"2025-08-01",precise:false,cat:"health",country:"Global",title:"Pose Estimation Plus LSTMs Automate Gait Scoring",summary:"A new architecture pairs pose-estimation keypoints with bidirectional LSTMs to score cow locomotion straight from barn video.",region:"Research",source:"arXiv",url:"https://arxiv.org/pdf/2508.10643"},
     {id:"h5",date:"2025-07-01",precise:false,cat:"health",country:"Global",title:"Battery-Free LoRa Sensors Bring AI Monitoring Off-Grid",summary:"A maintenance-free LoRa condition-monitoring system pairs low-power sensors with a hybrid AI model to watch herd health without daily upkeep.",region:"Research",source:"arXiv",url:"https://arxiv.org/pdf/2507.17156"},
     {id:"h6",date:"2025-07-29",precise:true,cat:"health",country:"Africa",title:"AI Ear Tags Cut Livestock Mortality 15–20% Across Africa",summary:"Edge-processed collars and ear tags catching disease and heat stress early are already changing loss rates in Sub-Saharan dairy pilots.",region:"Sub-Saharan Africa",source:"DairyReporter",url:"https://www.dairyreporter.com/Article/2025/07/29/ai-boosts-dairy-efficiency-across-sub-saharan-africa/"},
+    {id:"h7",date:"2024-03-13",precise:true,cat:"health",country:"N. Ireland",org:"GEA",title:"GEA Acquires CattleEye, Bringing AI Lameness Detection In-House",summary:"GEA bought the Northern Ireland startup outright, folding its camera-based lameness and body-condition AI into GEA's DairyNet herd-management portfolio.",region:"N. Ireland / Global",source:"GEA",url:"https://www.gea.com/en/news/corporate/2024/gea-adds-proven-ai-solution-to-portfolio/"},
+    {id:"h8",date:"2024-09-10",precise:true,cat:"health",country:"Netherlands",org:"Lely",title:"Lely's Zeta Turns Barn Cameras Into a 24/7 AI Eye",summary:"Ceiling-mounted cameras, dynamic LED lighting and AI object detection let Zeta recognize individual cows, flag heat signs and send real-time calving alerts, even at night.",region:"Netherlands / Global",source:"Lely",url:"https://www.lely.com/about-lely/news/lely-zeta-the-start-of-a-new-chapter-in-dairy-farming/"},
+    {id:"h9",date:"2024-01-01",precise:false,cat:"health",country:"Global",title:"Real-Time Facial Recognition Gives Every Cow a Biometric ID",summary:"A 2024 study demonstrates real-time facial-recognition biometric identification for dairy cows, opening the door to camera-only herd tracking without RFID tags.",region:"Research",source:"Preprints.org",url:"https://www.preprints.org/manuscript/202401.2032"},
+    {id:"h10",date:"2025-02-06",precise:true,cat:"health",country:"UK",org:"Vet Vision AI",title:"Vet Vision AI Reads Cow Facial Cues for Sainsbury's Herds",summary:"A University of Nottingham spinout's computer-vision system judges whether cows look happy and healthy, now on trial across a major UK retailer's dairy supply chain.",region:"UK",source:"DirectIndustry",url:"https://emag.directindustry.com/2025/02/06/new-ai-tech-helps-farmers-monitor-health-and-welfare-of-cattle/"},
+    {id:"h11",date:"2025-07-14",precise:true,cat:"health",country:"Nigeria",title:"Nigeria Deploys AI Tools Against Livestock Disease Outbreaks",summary:"A new smartphone app lets rural veterinary workers spot symptoms and get AI-assisted treatment advice, part of a national push to modernize disease response in hard-to-reach dairy regions.",region:"Nigeria",source:"Dairy Business ME&A",url:"https://dairybusinessmea.com/2025/07/14/nigeria-to-deploy-ai-tools-to-tackle-livestock-disease-to-improve-dairy-production/"},
     {id:"au1",date:"2026-04-01",precise:false,cat:"health",country:"Australia",org:"GEA",title:"CattleEye AI Now Watches Over 200,000 Cattle Worldwide",summary:"GEA's lameness-and-body-condition AI is now running on 140+ farms across Australia, Europe, the UK and the US.",region:"Australia / Global",source:"Diagri",url:"https://www.diagri.net/2026/04/the-smart-herd-how-artificial.html"},
     {id:"in1",date:"2026-05-01",precise:false,cat:"health",country:"India",org:"eVerse.AI",title:"AI Collar Cuts Calving Intervals to 12 Months in Nagpur",summary:"eVerse.AI's Connected Cow Collar uses AI and machine learning on activity and temperature data to predict illness and detect breeding windows, shortening inter-calving gaps from 16–18 months to 12 across 20,000+ devices.",region:"India",source:"The Better India",url:"https://thebetterindia.com/technology/ai-dairy-livestock-farming-smart-cow-collars-everse-ai-nagpur-india-12062906"},
     {id:"in3",date:"2026-04-01",precise:true,cat:"health",country:"India",org:"Gau Swastha",title:"A Phone Photo Is Now Enough to Diagnose a Sick Cow",summary:"Gau Swastha combines computer vision and large language models to read cattle photos and symptoms, validated on 7,000+ cattle across 26 Karnataka veterinary polyclinics with no wearable hardware required.",region:"India",source:"Eastern Herald",url:"https://easternherald.com/2026/04/01/gau-swastha-indias-first-image-based-ai-for-cattle-health-and-disease-protection-2/"},
@@ -496,12 +501,15 @@
     {id:"b5",date:"2026-02-01",precise:false,cat:"breeding",country:"USA",title:"Machine Learning Predicts Breeding Value From Robot-Milk Data",summary:"ML models now mine automatic-milking-system behavior logs to predict genomic breeding values in North American Holsteins.",region:"USA / Canada",source:"Journal of Dairy Science",url:"https://www.journalofdairyscience.org/article/S0022-0302(24)00497-1/fulltext"},
     {id:"b6",date:"2026-03-01",precise:false,cat:"breeding",country:"Global",title:"Methane Efficiency and Heat Resilience Go Mainstream",summary:"Once-experimental traits — methane efficiency, heat tolerance, polled genetics — are now commercially selectable through genomic-AI pipelines.",region:"Global",source:"The Bullvine",url:"https://www.thebullvine.com/genetic-evaluation-system/genomics-meets-artificial-intelligence-transforming-dairy-cattle-breeding-strategies/"},
     {id:"nz1",date:"2026-02-01",precise:false,cat:"breeding",country:"New Zealand",title:"AI 'Cow Matchmaking' Lifts Herd Performance in Waikato",summary:"A Waikato dairy farmer is using AI-matched mating recommendations to breed toward a more consistent, higher-performing herd.",region:"New Zealand",source:"Rural News Group",url:"https://www.ruralnewsgroup.co.nz/dairy-news/dairy-general-news/waikato-farmer-ai-cow-breeding-perfect-cow-results"},
+    {id:"b7",date:"2025-12-01",precise:false,cat:"breeding",country:"USA",org:"CDCB",title:"CDCB Retires Manual Fallback for Genomic Type Evaluations",summary:"Advances in genomic prediction now outperform the old supplementary evaluation for animals without linear-type data, so CDCB dropped 1.1 million such animals from the traditional calculation.",region:"USA",source:"CDCB",url:"https://uscdcb.com/december-2025-evaluation-changes-whats-new/"},
 
     {id:"n1",date:"2026-06-01",precise:false,cat:"nutrition",country:"Global",title:"Precision Feeding Cuts Manure Nitrogen 14%",summary:"AI-tuned individual rations lowered dietary crude protein about 9.7% and manure nitrogen about 14%, adding roughly $137 of net income per cow a year.",region:"Global",source:"Trop. Anim. Health & Production",url:"https://link.springer.com/article/10.1007/s11250-026-05077-8"},
     {id:"n2",date:"2026-05-01",precise:false,cat:"nutrition",country:"Global",title:"AI Feeding Advisors Move Into Everyday Herd Management",summary:"A review of decision-support tools shows AI recommendations shifting from research pilots into daily ration and management calls.",region:"Global",source:"Animal Frontiers",url:"https://doi.org/10.1093/af/vfaf059"},
     {id:"n3",date:"2026-02-01",precise:false,cat:"nutrition",country:"Global",title:"Automated Dosing Trims Feed Waste up to 25%",summary:"Farms running AI-guided automated feeders report 12–25% less feed waste and 5–10% higher milk yield versus manual feeding.",region:"Global",source:"AgProud",url:"https://www.agproud.com/articles/63105-precision-decisions-how-ai-will-shape-dairy-performance-in-2026"},
     {id:"n4",date:"2026-01-01",precise:false,cat:"nutrition",country:"USA",title:"Sensor-Linked Mixers Reach Mid-Size Barns",summary:"A new wave of TMR mixers with built-in load sensors and AI dosing controllers is trickling down from mega-dairies to family-scale barns.",region:"USA",source:"Cattle Daily",url:"https://cattledaily.com/new-feed-technologies-for-cattle/"},
     {id:"nl1",date:"2026-01-01",precise:false,cat:"nutrition",country:"Netherlands",title:"Dutch Farms Cut Antibiotic Use With AI Health Systems",summary:"A growing share of Netherlands dairy farms report higher milk yield and lower antibiotic use after adopting AI-driven monitoring systems.",region:"Netherlands",source:"Journal of Dairy Research",url:"https://www.cambridge.org/core/journals/journal-of-dairy-research/article/dairy-farming-in-the-era-of-artificial-intelligence-trend-or-a-real-game-changer/7D6BAFA73473A5132ED5351A4B679794"},
+    {id:"n5",date:"2024-01-22",precise:true,cat:"nutrition",country:"USA",org:"Precision Livestock Technologies",title:"First AI System Predicts Cattle Feed Intake Daily",summary:"Trained on more than 150,000 pen-days of machine-vision bunk data, the system generates daily feeding recommendations that replicate a hyper-observant cattle feeder.",region:"USA",source:"GlobeNewswire",url:"https://www.globenewswire.com/news-release/2024/01/22/2813394/0/en/Precision-Livestock-Technologies-Releases-AI-Powered-Predictive-Cattle-Feeding-Recommendations.html"},
+    {id:"n6",date:"2025-01-08",precise:true,cat:"nutrition",country:"USA",org:"SLDairy",title:"SLDairy Project Builds a Self-Learning Feeding System",summary:"A USDA-funded, multi-university project is building an AI system that adjusts feed-pellet delivery per cow in real time, estimated to cut US dairy nitrogen emissions by 82,000 tonnes a year.",region:"USA",source:"University of Idaho",url:"https://www.uidaho.edu/news/news-articles/colleges/cals/2025/010825-dairy-feeding"},
 
     {id:"e1",date:"2026-06-01",precise:false,cat:"engineering",country:"Global",title:"Milking Robots Feed Quarter-Level Data Into AI Quality Models",summary:"Lely, DeLaval, GEA, BouMatic and Fullwood's latest boxes now capture quarter-level milk-quality readings on every milking, feeding AI models that flag mastitis risk before it shows up in the tank.",region:"Global",source:"The Bullvine",url:"https://www.thebullvine.com/dairy-technology-2026-robotics-sensors-ai-and-real-world-roi/"},
     {id:"e2",date:"2026-05-01",precise:false,cat:"engineering",country:"USA",title:"Smart Cameras Become the Fastest-Adopted Barn Tech",summary:"AI camera systems are spreading through dairy barns faster than any other precision technology this year.",region:"USA",source:"Dairy Herd",url:"https://www.dairyherd.com/news/dairy-production/rise-ai-powered-smart-cameras-dairy-farming"},
@@ -509,6 +517,7 @@
     {id:"e4",date:"2026-11-10",precise:true,tag:"upcoming",cat:"engineering",country:"Germany",org:"EuroTier / DLG",title:"EuroTier 2026 Puts 'Intelligence in Animal Farming' Center Stage",summary:"Hanover's flagship livestock fair devotes its main theme to camera-plus-sensor robotic retrofits and AI barn systems.",region:"Germany / Global",source:"EuroTier / DLG",url:"https://www.eurotier.com/en/news/robotics-in-livestock-farming"},
     {id:"e5",date:"2026-03-01",precise:false,cat:"engineering",country:"Global",org:"Lely",title:"Inside Lely's Autonomous Milking Robots",summary:"A deep dive into the machine-vision guidance and AI behind Lely's fully autonomous milking robots, and the welfare tradeoffs of running a barn without a human in the parlour.",region:"Global",source:"IEEE Spectrum",url:"https://spectrum.ieee.org/lely-dairy-robots"},
     {id:"au2",date:"2026-06-01",precise:false,cat:"engineering",country:"Australia",title:"Automatic Milking Reaches 15% of Australian Dairy Farms",summary:"Robots that use machine vision to find and attach to each teat automatically now milk roughly 15% of Australian herds, concentrated in Victoria's Gippsland region.",region:"Australia",source:"USDA FAS",url:"https://www.fas.usda.gov/data/gain/2026/06/australia-dairy-and-products-semi-annual"},
+    {id:"e6",date:"2024-11-12",precise:true,cat:"engineering",country:"Germany",org:"EuroTier / DLG",title:"EuroTier 2024 Launches FarmRobotix for AI and Automation",summary:"Europe's flagship livestock fair debuted FarmRobotix, a dedicated showcase for robotics, AI and automation in animal farming, drawing 120,000 visitors to Hanover.",region:"Germany / Global",source:"Feed & Additive Magazine",url:"https://www.feedandadditive.com/eurotier-2024-explores-animal-welfare-sustainability-digitalization-and-ai/"},
 
     {id:"q1",date:"2026-04-28",precise:true,cat:"quality",country:"India",org:"Findability Sciences",title:"Findability Sciences Launches LactaAI for Dairy Plants",summary:"A new industrial-AI platform targets ₹2.35–28.2 crore in annual value per plant through yield gains and lower energy intensity.",region:"India / Global",source:"AgroSpectrum India",url:"https://agrospectrumindia.com/2026/04/28/findability-sciences-launches-lactaai-industrial-ai-platform-built-for-dairy-plant.html"},
     {id:"q2",date:"2026-02-01",precise:false,cat:"quality",country:"Global",title:"Inline NIR Plus AI Catches Contamination in the Pipe",summary:"Near-infrared sensing paired with AI now flags fat, protein and contamination shifts while milk is still moving through the line.",region:"Global",source:"Dairy Processing",url:"https://www.dairyprocessing.com/articles/4264-advanced-inspection-systems-bolster-food-safety-product-integrity"},
@@ -516,6 +525,7 @@
     {id:"q4",date:"2026-03-01",precise:false,cat:"quality",country:"Global",title:"Antibiotic-Residue AI Testing Hits 99.2% Accuracy",summary:"Automated residue screening cuts sample turnaround from 24 hours to 15 minutes and lowers recall risk by roughly a third.",region:"Global",source:"Industry data",url:"https://worldmetrics.org/ai-in-the-dairy-industry-statistics/"},
     {id:"q5",date:"2026-05-01",precise:false,cat:"quality",country:"Global",title:"Review Maps AI's Reach Across Cheese Manufacturing",summary:"From coagulation control to ripening prediction, a new review catalogs where AI is entering the cheese vat.",region:"Global",source:"ScienceDirect",url:"https://www.sciencedirect.com/science/article/abs/pii/S0924224426001937"},
     {id:"nz2",date:"2026-03-01",precise:false,cat:"quality",country:"New Zealand",org:"Fonterra",title:"Fonterra's Vision AI Inspects Every Bag Off the Line",summary:"AI-enabled image recognition now checks every milk-powder and butter package at Fonterra's plants, pausing the line automatically when it spots a defect.",region:"New Zealand",source:"Fonterra",url:"https://www.fonterra.com/nz/en/our-stories/articles/how-ai-and-automation-are-shaping-the-future-of-fonterras-operations.html"},
+    {id:"ke1",date:"2026-02-10",precise:true,cat:"quality",country:"Kenya",org:"Dairy Sense",title:"On-Farm AI Milk Testing Reaches 47 Kenyan Counties",summary:"Dairy Sense's AI-based milk-quality test delivers lab-grade results on the spot, with 98% accuracy and early mastitis detection reported to lift farmer incomes by up to 50%.",region:"Kenya",source:"We Are Tech Africa",url:"https://www.wearetech.africa/en/fils-uk/tech-stars/kenyan-entrepreneur-daniel-litunya-uses-ai-to-automate-milk-quality-testing"},
 
     {id:"p1",date:"2026-06-01",precise:false,cat:"product",country:"Global",org:"IFF",title:"IFF's 2026 Dairy Trends Report Bets on 'Mood Food'",summary:"AI-mined trend data points to interactive whipped-cheese formats and indulgence snacking as 2026's breakout dairy formats.",region:"Global",source:"IFF",url:"https://www.iff.com/media/news/2026-dairy-trends-report/"},
     {id:"p2",date:"2025-11-01",precise:false,cat:"product",country:"Global",org:"GlobalData (AI Palette)",title:"AI Palette Flags Six Breakout Dairy Flavors",summary:"An AI trend-mining platform surfaced gianduja chocolate, hojicha and pistachio butter as the next wave of dairy flavor launches.",region:"Global",source:"Prepared Foods",url:"https://www.preparedfoods.com/articles/130534-ai-platform-reveals-top-emerging-dairy-flavors-and-ingredients-in-2025"},
@@ -538,6 +548,7 @@
     {id:"d5",date:"2026-01-01",precise:false,cat:"digital",country:"India",org:"Doodhvale",title:"Doodhvale Raises $1M to Push AI Into D2C Delivery",summary:"Fresh funding will go toward AI-driven demand forecasting and delivery-route optimization for a direct-to-consumer dairy brand.",region:"India",source:"Indian Startup News",url:"https://indianstartupnews.com/funding/indian-dairy-startup-doodhvale-farms-raises-1-million-in-funding-to-invest-in-ai-and-technology-12144839"},
     {id:"d6",date:"2026-07-30",precise:true,cat:"digital",country:"USA",title:"AI, Immigration and the Beef Boom Reshape US Dairy's Outlook",summary:"Industry analysis ties AI adoption to two other forces — immigration policy and record beef prices — squeezing US dairy's next decade.",region:"USA",source:"Dairy Herd",url:"https://www.dairyherd.com/news/business/beyond-bulk-tank-how-ai-immigration-and-beef-boom-are-shaping-future-us-dairy"},
     {id:"nz3",date:"2026-05-01",precise:false,cat:"digital",country:"New Zealand",title:"Generative AI Assistants Enter the Kiwi Milking Shed",summary:"Farmers are turning to generative-AI tools for pasture planning, compliance paperwork and day-to-day decisions, alongside a wave of collar, ear-tag and virtual-fence sensors.",region:"New Zealand",source:"Rural News Group",url:"https://www.ruralnewsgroup.co.nz/dairy-news/dairy-machinery-products/ai-wearable-tech-nz-dairy-farming-data-decision-making"},
+    {id:"nz4",date:"2025-06-23",precise:true,cat:"digital",country:"New Zealand",org:"Halter",title:"Halter Hits $1B Valuation on AI-Guided Virtual Fencing",summary:"The startup's AI-driven cow collars — which herd, draft and virtually fence cattle without wires — raised a $100M Series D, making Halter one of New Zealand's few unicorns.",region:"New Zealand",source:"FinSMEs",url:"https://www.finsmes.com/2025/06/halter-raises-100m-in-series-d-funding.html"},
     {id:"eu1",date:"2026-01-01",precise:false,cat:"health",country:"Europe",title:"EU Rules Push Continuous AI Health Monitoring for Big Herds",summary:"New EFSA-linked welfare rules require continuous health monitoring for herds over 100 animals, a mandate that camera- and sensor-based AI systems are built to meet.",region:"European Union",source:"Market Data Forecast",url:"https://www.marketdataforecast.com/market-reports/europe-artificial-intelligence-in-agriculture-market"},
     {id:"eu2",date:"2026-02-01",precise:false,cat:"health",country:"Netherlands",org:"Connecterra",title:"Pose-Estimation Cameras Catch Illness Before Symptoms Show",summary:"Barn-mounted cameras from providers like Connecterra and Cainthus use pose-estimation to flag lameness, estrus and illness in Europe's fastest-growing dairy-tech segment.",region:"Netherlands / Europe",source:"Market Data Forecast",url:"https://www.marketdataforecast.com/market-reports/europe-artificial-intelligence-in-agriculture-market"}
   ];
@@ -583,6 +594,7 @@
     {k:"week", label:"This Week"},
     {k:"month", label:"This Month"},
     {k:"year", label:"Last 12 Mo."},
+    {k:"twoyear", label:"Last 2 Years"},
     {k:"all", label:"All Time"}
   ];
 
@@ -598,6 +610,7 @@
       case "week": return diffDays>=0 && diffDays<7;
       case "month": return diffDays>=0 && diffDays<31;
       case "year": return diffDays>=0 && diffDays<366;
+      case "twoyear": return diffDays>=0 && diffDays<731;
       default: return true;
     }
   }
@@ -753,7 +766,7 @@
   /* ---------- render: trend chart (12mo) ---------- */
   function renderTrend(){
     var months=[];
-    for(var i=11;i>=0;i--){
+    for(var i=23;i>=0;i--){
       var m=new Date(TODAY0.getFullYear(), TODAY0.getMonth()-i, 1);
       months.push({y:m.getFullYear(), m:m.getMonth(), label:["J","F","M","A","M","J","J","A","S","O","N","D"][m.getMonth()], count:0});
     }
@@ -761,7 +774,7 @@
       if(d._future) return;
       months.forEach(function(mo){ if(d._d.getFullYear()===mo.y && d._d.getMonth()===mo.m) mo.count++; });
     });
-    var W=640,H=150,pad=8;
+    var W=1180,H=150,pad=8;
     var max=Math.max.apply(null, months.map(function(m){return m.count;}))||1;
     var stepX = (W-pad*2)/(months.length-1);
     var pts = months.map(function(m,i){
@@ -819,7 +832,7 @@
       var months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
       return months[state.customDay.getMonth()]+" "+state.customDay.getDate()+", "+state.customDay.getFullYear();
     }
-    var map={today:"Today's developments", day:"Yesterday's developments", week:"This week's pulse", month:"This month, at a glance", year:"The last 12 months", all:"Everything we're tracking"};
+    var map={today:"Today's developments", day:"Yesterday's developments", week:"This week's pulse", month:"This month, at a glance", year:"The last 12 months", twoyear:"The last 2 years", all:"Everything we're tracking"};
     return map[state.range];
   }
 

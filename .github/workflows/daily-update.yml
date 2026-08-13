@@ -1,0 +1,46 @@
+name: Daily tracker refresh
+
+on:
+  schedule:
+    # 06:15 UTC daily (~11:45 AM IST)
+    - cron: "15 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run daily refresh
+        run: python scripts/daily_refresh.py
+
+      - name: Commit and push updates
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if git diff --staged --quiet; then
+            echo "No changes to publish."
+          else
+            git commit -m "$(cat <<'EOF'
+Daily refresh: ingest new dairy AI/ML developments.
+
+Automated pass from arXiv and Crossref updates index.html and redeploys GitHub Pages.
+EOF
+)"
+            git push
+          fi

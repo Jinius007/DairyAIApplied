@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI Applications in Dairy Sector Repository</title>
 <meta name="description" content="A live-tracked, function-by-function repository of AI and ML developments across the global dairy industry over the last 2 years — filterable by day, week, month, year, function, region and company/co-op.">
+<meta name="last-refresh" content="2026-08-13">
 <style>
   /* ===================== TOKENS ===================== */
   :root{
@@ -506,7 +507,7 @@
     <div>
       <h5>Coverage window</h5>
       <p id="footRange">—</p>
-      <p>New items are added daily by an automated research pass; this page redeploys to the same link each time.</p>
+      <p>New items are ingested daily from arXiv and Crossref via a GitHub Action (~06:15 UTC); this page redeploys automatically when updates land on <code>main</code>.</p>
     </div>
     <div>
       <h5>Primary sources referenced</h5>
@@ -829,13 +830,26 @@
     var thisWeek=DATA.filter(function(d){ if(d._future) return false; var dd=(TODAY0-startOfDay(d._d))/MS_DAY; return dd>=0&&dd<7; }).length;
     var months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     var minD=DATA.reduce(function(m,d){return d._d<m?d._d:m;}, DATA[0]._d);
+    var refreshMeta=document.querySelector('meta[name="last-refresh"]');
+    var refreshLabel="—";
+    var refreshSub="GitHub Action runs daily ~06:15 UTC";
+    if(refreshMeta && refreshMeta.content){
+      var rd=new Date(refreshMeta.content+"T00:00:00");
+      if(!isNaN(rd.getTime())){
+        refreshLabel=months[rd.getMonth()]+" "+rd.getDate()+", "+rd.getFullYear();
+        var refreshDiff=Math.round((TODAY0.getTime()-startOfDay(rd).getTime())/MS_DAY);
+        if(refreshDiff===0) refreshSub="updated today · next run ~24h";
+        else if(refreshDiff===1) refreshSub="updated yesterday · next run ~24h";
+        else refreshSub=refreshDiff+" days ago · daily cadence";
+      }
+    }
     var row=document.getElementById("statRow");
     var items=[
       {l:"Developments tracked", v:total, s:"since "+months[minD.getMonth()]+" "+minD.getFullYear()},
       {l:"New this week", v:thisWeek, s:"last 7 days"},
       {l:"Functions covered", v:8, s:"health → platforms"},
       {l:"Countries & regions", v:COUNTRY_ORDER.length, s:"click a chip to isolate one"},
-      {l:"Refresh cadence", v:"24h", s:"auto-updated daily"}
+      {l:"Last refreshed", v:refreshLabel, s:refreshSub}
     ];
     row.innerHTML="";
     items.forEach(function(it){

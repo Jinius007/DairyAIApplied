@@ -1,0 +1,999 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Herd Signal</title>
+<meta name="description" content="A live-tracked, function-by-function map of AI and ML breakthroughs across the global dairy industry — filterable by day, week, month, year, function and region.">
+<style>
+  /* ===================== TOKENS ===================== */
+  :root{
+    color-scheme: light;
+    --bg:#EEF2F1; --surface:#FFFFFF; --surface-2:#E3EAE8; --surface-3:#D8E1DE;
+    --ink:#0F1E1A; --ink-soft:#46564F; --muted:#7C8B86;
+    --border:rgba(15,30,26,.12); --border-strong:rgba(15,30,26,.24);
+    --accent:#A9740F; --accent-ink:#5C3F08; --accent-soft:rgba(169,116,15,.13);
+    --glow:#0E8C96;
+    --shadow:rgba(15,30,26,.16);
+    --good:#0ca30c; --warning:#946107; --serious:#b1502c; --critical:#d03b3b;
+    --cat-engineering:#2a78d6; --cat-digital:#c1541e; --cat-quality:#128f5c;
+    --cat-nutrition:#a97400; --cat-product:#c94b81; --cat-sustainability:#1f7a1f;
+    --cat-breeding:#4a3aa7; --cat-health:#d63a39;
+    --font-mono: ui-monospace,'Cascadia Code','SFMono-Regular',Consolas,'Liberation Mono',monospace;
+    --font-sans: -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    --font-serif: Georgia,'Iowan Old Style','Times New Roman',serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --bg:#0A1210; --surface:#101B18; --surface-2:#16221E; --surface-3:#1D2B26;
+      --ink:#EAF3F0; --ink-soft:#A8BDB6; --muted:#6E8480;
+      --border:rgba(234,243,240,.12); --border-strong:rgba(234,243,240,.24);
+      --accent:#F0B93E; --accent-ink:#3A2B03; --accent-soft:rgba(240,185,62,.16);
+      --glow:#4FE3F2;
+      --shadow:rgba(0,0,0,.55);
+      --good:#3fd23f; --warning:#fab219; --serious:#ec835a; --critical:#ff6b6b;
+      --cat-engineering:#3987e5; --cat-digital:#d95926; --cat-quality:#199e70;
+      --cat-nutrition:#c98500; --cat-product:#d55181; --cat-sustainability:#008300;
+      --cat-breeding:#9085e9; --cat-health:#e66767;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --bg:#0A1210; --surface:#101B18; --surface-2:#16221E; --surface-3:#1D2B26;
+    --ink:#EAF3F0; --ink-soft:#A8BDB6; --muted:#6E8480;
+    --border:rgba(234,243,240,.12); --border-strong:rgba(234,243,240,.24);
+    --accent:#F0B93E; --accent-ink:#3A2B03; --accent-soft:rgba(240,185,62,.16);
+    --glow:#4FE3F2;
+    --shadow:rgba(0,0,0,.55);
+    --good:#3fd23f; --warning:#fab219; --serious:#ec835a; --critical:#ff6b6b;
+    --cat-engineering:#3987e5; --cat-digital:#d95926; --cat-quality:#199e70;
+    --cat-nutrition:#c98500; --cat-product:#d55181; --cat-sustainability:#008300;
+    --cat-breeding:#9085e9; --cat-health:#e66767;
+  }
+
+  /* ===================== BASE ===================== */
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--font-sans); line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    position:relative;
+  }
+  ::selection{ background:var(--accent-soft); }
+
+  /* ===================== AMBIENT ATMOSPHERE ===================== */
+  .ambient{ position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none; }
+  .ambient span{
+    position:absolute; width:46vmax; height:46vmax; border-radius:50%; filter:blur(90px);
+    opacity:.28; will-change:transform;
+  }
+  .ambient span:nth-child(1){ background:var(--cat-engineering); top:-18%; left:-12%; animation:drift1 26s ease-in-out infinite; }
+  .ambient span:nth-child(2){ background:var(--cat-breeding); bottom:-20%; right:-10%; animation:drift2 32s ease-in-out infinite; }
+  .ambient span:nth-child(3){ background:var(--accent); top:36%; right:22%; width:30vmax; height:30vmax; opacity:.16; animation:drift3 22s ease-in-out infinite; }
+  .ambient span:nth-child(4){ background:var(--cat-quality); bottom:8%; left:18%; width:26vmax; height:26vmax; opacity:.14; animation:drift1 28s ease-in-out infinite reverse; }
+  @keyframes drift1{ 0%,100%{ transform:translate(0,0) scale(1); } 50%{ transform:translate(4%,6%) scale(1.08); } }
+  @keyframes drift2{ 0%,100%{ transform:translate(0,0) scale(1); } 50%{ transform:translate(-5%,-4%) scale(1.1); } }
+  @keyframes drift3{ 0%,100%{ transform:translate(0,0) scale(1); } 50%{ transform:translate(-6%,5%) scale(0.94); } }
+  @media (max-width:640px){ .ambient span{ opacity:.16; } }
+  a{ color:inherit; }
+  button{ font-family:inherit; }
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 clamp(16px,4vw,40px); }
+  h1,h2,h3{ text-wrap:balance; margin:0; }
+  :focus-visible{ outline:2px solid var(--glow); outline-offset:3px; border-radius:4px; }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; scroll-behavior:auto !important; }
+  }
+
+  .eyebrow{
+    font-family:var(--font-mono); font-size:11.5px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--muted); display:flex; align-items:center; gap:8px;
+  }
+  .eyebrow .dot{ width:6px; height:6px; border-radius:50%; background:var(--glow); box-shadow:0 0 8px var(--glow); }
+
+  /* ===================== TOPBAR ===================== */
+  .topbar{
+    position:sticky; top:0; z-index:40; backdrop-filter:blur(10px) saturate(1.2);
+    background:color-mix(in srgb, var(--bg) 82%, transparent);
+    border-bottom:1px solid var(--border);
+  }
+  .topbar .wrap{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding-top:12px; padding-bottom:12px; }
+  .brand{ display:flex; align-items:center; gap:10px; font-family:var(--font-mono); font-weight:600; letter-spacing:.02em; font-size:15px; }
+  .brand-mark{ width:26px; height:26px; border-radius:7px; background:linear-gradient(145deg,var(--cat-engineering),var(--glow)); display:grid; place-items:center; box-shadow:0 2px 10px var(--shadow); flex:none; }
+  .brand-mark svg{ width:15px; height:15px; stroke:#fff; }
+  .topbar-meta{ display:flex; align-items:center; gap:18px; font-family:var(--font-mono); font-size:11.5px; color:var(--muted); }
+  .live-pill{ display:flex; align-items:center; gap:6px; padding:5px 10px; border:1px solid var(--border); border-radius:999px; }
+  .live-pill .dot{ width:6px; height:6px; border-radius:50%; background:var(--good); animation:pulse-dot 2.2s ease-in-out infinite; }
+  @keyframes pulse-dot{ 0%,100%{ opacity:1; } 50%{ opacity:.35; } }
+  @media (max-width:640px){ .topbar-meta{ display:none; } }
+
+  /* ===================== HERO / MIND MAP ===================== */
+  .hero{ position:relative; padding:clamp(28px,6vw,56px) 0 8px; overflow:hidden; }
+  .hero-grid{ display:grid; grid-template-columns:1.05fr 1fr; gap:clamp(24px,4vw,48px); align-items:center; }
+  @media (max-width:900px){ .hero-grid{ grid-template-columns:1fr; } }
+
+  .hero-copy h1{
+    font-family:var(--font-mono); font-weight:700; letter-spacing:-.01em;
+    font-size:clamp(34px,5.4vw,58px); line-height:1.02; margin:14px 0 16px;
+  }
+  .hero-copy h1 em{ font-family:var(--font-serif); font-style:italic; font-weight:400; color:var(--accent); }
+  .hero-copy p{ color:var(--ink-soft); font-size:16.5px; max-width:46ch; margin:0 0 22px; }
+  .hero-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+  .btn{
+    font-family:var(--font-mono); font-size:12.5px; letter-spacing:.03em; text-transform:uppercase;
+    padding:11px 18px; border-radius:9px; border:1px solid var(--border-strong); background:var(--surface);
+    cursor:pointer; color:var(--ink); transition:transform .15s ease, border-color .15s ease, background .15s ease;
+  }
+  .btn:hover{ transform:translateY(-1px); border-color:var(--glow); }
+  .btn.primary{ background:var(--ink); color:var(--bg); border-color:var(--ink); }
+
+  .hero-stage{
+    position:relative; aspect-ratio:1/1; max-width:520px; margin:0 auto; width:100%;
+    perspective:1200px;
+  }
+  .hero-inner{ position:absolute; inset:0; transform-style:preserve-3d; transition:transform .25s ease-out; }
+  .hero-stage canvas{ position:absolute; inset:0; width:100%; height:100%; }
+  .hub{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) translateZ(30px);
+    width:clamp(88px,20vw,118px); height:clamp(88px,20vw,118px); border-radius:50%;
+    background:radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--glow) 30%, var(--surface)), var(--surface) 68%);
+    border:1px solid var(--border-strong); display:grid; place-items:center; text-align:center;
+    box-shadow:0 0 0 1px var(--border), 0 10px 40px var(--shadow), 0 0 46px color-mix(in srgb, var(--glow) 22%, transparent);
+    z-index:5;
+  }
+  .hub-ring{ position:absolute; inset:-14px; border-radius:50%; border:1px dashed var(--border-strong); animation:spin 34s linear infinite; }
+  .hub-ring.r2{ inset:-30px; animation-duration:52s; animation-direction:reverse; opacity:.6; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .hub b{ display:block; font-family:var(--font-mono); font-size:13px; letter-spacing:.03em; line-height:1.25; }
+  .hub span{ display:block; font-size:9.5px; color:var(--muted); font-family:var(--font-mono); letter-spacing:.08em; margin-top:3px; }
+
+  .node{
+    position:absolute; transform:translate(-50%,-50%) translateZ(0px) scale(1); z-index:4;
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    background:none; border:none; cursor:pointer; padding:4px; color:var(--ink);
+    transition:transform .28s cubic-bezier(.2,.9,.3,1.4);
+  }
+  .node:hover, .node:focus-visible{ transform:translate(-50%,-50%) translateZ(46px) scale(1.22); z-index:6; }
+  .node:active{ transform:translate(-50%,-50%) translateZ(46px) scale(1.32); }
+  .node-dot{
+    width:clamp(40px,9vw,56px); height:clamp(40px,9vw,56px); border-radius:14px;
+    background:var(--surface); border:1.5px solid var(--dot-color); display:grid; place-items:center;
+    box-shadow:0 6px 18px var(--shadow), 0 0 0 5px color-mix(in srgb, var(--dot-color) 10%, transparent);
+    transition:box-shadow .28s ease;
+  }
+  .node:hover .node-dot, .node:focus-visible .node-dot{
+    box-shadow:0 14px 34px var(--shadow), 0 0 0 9px color-mix(in srgb, var(--dot-color) 22%, transparent), 0 0 30px color-mix(in srgb, var(--dot-color) 55%, transparent);
+    border-color:var(--dot-color);
+  }
+  .node-dot svg{ width:52%; height:52%; stroke:var(--dot-color); fill:none; }
+  .node-label{ font-family:var(--font-mono); font-size:10px; text-align:center; max-width:88px; line-height:1.2; color:var(--ink-soft); transition:color .2s; }
+  .node:hover .node-label, .node:focus-visible .node-label{ color:var(--ink); }
+  .node-count{ font-family:var(--font-mono); font-size:9.5px; color:var(--dot-color); font-weight:700; }
+
+  @media (max-width:900px){ .hero-stage{ max-width:400px; } }
+  @media (max-width:520px){ .hero-stage{ max-width:320px; aspect-ratio:1/1.12; } .node-label{ display:none; } }
+
+  /* ===================== STATS ===================== */
+  .stats{ padding:38px 0 6px; }
+  .stat-row{ display:grid; grid-template-columns:repeat(5,1fr); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  @media (max-width:900px){ .stat-row{ grid-template-columns:repeat(2,1fr); } }
+  .stat{ background:var(--surface); padding:18px 20px; }
+  .stat .eyebrow{ margin-bottom:8px; }
+  .stat b{ font-family:var(--font-mono); font-size:clamp(24px,3vw,32px); font-weight:700; display:block; letter-spacing:-.01em; }
+  .stat small{ color:var(--muted); font-size:12px; }
+
+  /* ===================== CHARTS ===================== */
+  .charts{ padding:34px 0 8px; display:grid; grid-template-columns:1.35fr 1fr; gap:18px; }
+  @media (max-width:900px){ .charts{ grid-template-columns:1fr; } }
+  .card{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px 22px; }
+  .card h3{ font-family:var(--font-mono); font-size:13px; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-soft); font-weight:600; margin-bottom:14px; }
+  .chart-scroll{ overflow-x:auto; }
+
+  #trendSvg{ width:100%; height:150px; overflow:visible; }
+  .trend-tip{
+    position:absolute; pointer-events:none; background:var(--ink); color:var(--bg);
+    font-family:var(--font-mono); font-size:11px; padding:6px 9px; border-radius:7px; opacity:0; transition:opacity .1s;
+    white-space:nowrap; transform:translate(-50%,-130%); z-index:10; box-shadow:0 6px 18px var(--shadow);
+  }
+
+  .bar-row{ display:flex; align-items:center; gap:10px; margin-bottom:11px; }
+  .bar-row:last-child{ margin-bottom:0; }
+  .bar-label{ font-family:var(--font-mono); font-size:11.5px; color:var(--ink-soft); width:118px; flex:none; }
+  .bar-track{ flex:1; height:20px; background:var(--surface-2); border-radius:5px; position:relative; overflow:hidden; }
+  .bar-fill{ height:100%; border-radius:5px; display:flex; align-items:center; justify-content:flex-end; padding-right:7px; min-width:26px; }
+  .bar-fill span{ font-family:var(--font-mono); font-size:10.5px; font-weight:700; color:var(--surface); }
+
+  /* ===================== CONTROLS ===================== */
+  .controls{ position:sticky; top:53px; z-index:30; background:color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter:blur(8px); border-bottom:1px solid var(--border); padding:16px 0; }
+  .control-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .seg{ display:flex; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:3px; gap:2px; }
+  .seg button{
+    border:none; background:none; padding:7px 13px; border-radius:7px; font-family:var(--font-mono);
+    font-size:11.5px; letter-spacing:.02em; color:var(--ink-soft); cursor:pointer; white-space:nowrap;
+  }
+  .seg button.active{ background:var(--ink); color:var(--bg); }
+  .datebox{ display:flex; align-items:center; gap:7px; }
+  .datebox input{
+    font-family:var(--font-mono); font-size:11.5px; padding:7px 9px; border-radius:7px; border:1px solid var(--border);
+    background:var(--surface); color:var(--ink);
+  }
+  .spacer{ flex:1; }
+  .result-count{ font-family:var(--font-mono); font-size:11.5px; color:var(--muted); }
+
+  .chip-row{ display:flex; gap:7px; flex-wrap:wrap; margin-top:12px; }
+  .chip{
+    display:flex; align-items:center; gap:6px; padding:6px 12px 6px 9px; border-radius:999px; border:1px solid var(--border);
+    background:var(--surface); font-family:var(--font-mono); font-size:11px; cursor:pointer; color:var(--ink-soft);
+    transition:border-color .15s, color .15s, background .15s;
+  }
+  .chip .sw{ width:8px; height:8px; border-radius:50%; background:var(--c); flex:none; }
+  .chip.active{ border-color:var(--c); color:var(--ink); background:color-mix(in srgb, var(--c) 12%, var(--surface)); }
+  .chip.allchip.active{ border-color:var(--ink); background:var(--surface-2); color:var(--ink); }
+  .chip:hover{ transform:translateY(-2px); border-color:var(--border-strong); box-shadow:0 6px 14px var(--shadow); }
+  .chip.active:hover{ border-color:var(--c); }
+  .chip.country{ }
+  .chip.country .sw{ background:none; width:auto; height:auto; }
+  .filter-label{ font-family:var(--font-mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:14px 0 6px; }
+  .filter-label:first-of-type{ margin-top:4px; }
+
+  /* ===================== FEED ===================== */
+  .feed-section{ padding:30px 0 70px; }
+  .feed-head{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+  .feed-head h2{ font-family:var(--font-mono); font-size:clamp(20px,2.6vw,26px); letter-spacing:-.01em; }
+  .feed-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
+
+  .card-item{
+    --rx:0deg; --ry:0deg; --mx:50%; --my:50%; --lift:0px; --scale:1;
+    background:var(--surface); border:1px solid var(--border); border-radius:13px; padding:18px 18px 16px;
+    display:flex; flex-direction:column; gap:10px; position:relative; overflow:hidden; cursor:pointer;
+    transform-style:preserve-3d; perspective:800px;
+    transform:translateY(var(--lift)) scale(var(--scale)) rotateX(var(--rx)) rotateY(var(--ry));
+    transition:transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease, border-color .3s ease;
+    box-shadow:0 1px 0 var(--border);
+  }
+  .card-item::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--c); z-index:2; }
+  .card-item::after{
+    content:""; position:absolute; inset:0; z-index:1; opacity:0; transition:opacity .3s ease;
+    background:radial-gradient(320px circle at var(--mx) var(--my), color-mix(in srgb, var(--c) 30%, transparent), transparent 62%);
+  }
+  .card-item.tilting{ transition:box-shadow .3s ease, border-color .3s ease; }
+  .card-item:hover{ box-shadow:0 22px 46px var(--shadow), 0 0 0 1px color-mix(in srgb, var(--c) 30%, var(--border)); border-color:color-mix(in srgb, var(--c) 45%, var(--border-strong)); }
+  .card-item:hover::after{ opacity:1; }
+  .card-item > *{ position:relative; z-index:2; }
+  .card-item:active{ transition:transform .1s ease; }
+  .card-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .card-cat{ display:flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--c); font-weight:700; }
+  .card-cat .sw{ width:7px; height:7px; border-radius:50%; background:var(--c); }
+  .card-date{ font-family:var(--font-mono); font-size:10.5px; color:var(--muted); white-space:nowrap; }
+  .card-item h4{ font-size:15.5px; line-height:1.32; font-weight:650; margin:0; }
+  .card-item p{ font-size:13.3px; color:var(--ink-soft); line-height:1.48; margin:0; }
+  .card-bottom{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:auto; padding-top:8px; }
+  .card-region{ font-family:var(--font-mono); font-size:10.5px; color:var(--muted); display:flex; align-items:center; gap:5px; }
+  .card-src{ font-family:var(--font-mono); font-size:10.5px; color:var(--ink-soft); text-decoration:none; border-bottom:1px dotted var(--border-strong); }
+  .card-src:hover{ color:var(--glow); border-color:var(--glow); }
+  .badge-upcoming{ font-family:var(--font-mono); font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; background:var(--accent-soft); color:var(--accent-ink); padding:2px 7px; border-radius:5px; }
+
+  .empty{ padding:60px 20px; text-align:center; color:var(--muted); font-family:var(--font-mono); font-size:13px; border:1px dashed var(--border-strong); border-radius:14px; }
+  .empty b{ display:block; color:var(--ink-soft); font-size:15px; margin-bottom:6px; }
+
+  /* ===================== ZOOM MODAL ===================== */
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:100; display:grid; place-items:center; padding:24px;
+    background:color-mix(in srgb, var(--bg) 55%, rgba(0,0,0,.55));
+    backdrop-filter:blur(6px) saturate(1.1);
+    opacity:0; pointer-events:none; transition:opacity .25s ease;
+  }
+  .modal-backdrop.open{ opacity:1; pointer-events:auto; }
+  .modal{
+    width:min(560px,100%); max-height:min(84vh,720px); overflow-y:auto;
+    background:var(--surface); border:1px solid var(--border-strong); border-radius:18px;
+    padding:30px 30px 26px; position:relative;
+    transform:scale(.86) translateY(18px); opacity:0; transition:transform .32s cubic-bezier(.2,.8,.2,1.15), opacity .25s ease;
+    box-shadow:0 30px 80px rgba(0,0,0,.35), 0 0 0 1px var(--border);
+  }
+  .modal-backdrop.open .modal{ transform:scale(1) translateY(0); opacity:1; }
+  .modal::before{ content:""; position:absolute; left:0; top:0; right:0; height:5px; background:var(--c); border-radius:18px 18px 0 0; }
+  .modal-close{
+    position:absolute; top:16px; right:16px; width:34px; height:34px; border-radius:10px; border:1px solid var(--border);
+    background:var(--surface-2); color:var(--ink-soft); cursor:pointer; display:grid; place-items:center; transition:transform .15s, color .15s;
+  }
+  .modal-close:hover{ transform:rotate(90deg); color:var(--ink); }
+  .modal-cat{ display:inline-flex; align-items:center; gap:7px; font-family:var(--font-mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--c); font-weight:700; margin-bottom:14px; }
+  .modal-cat .sw{ width:8px; height:8px; border-radius:50%; background:var(--c); box-shadow:0 0 10px var(--c); }
+  .modal h3{ font-size:clamp(20px,3vw,26px); line-height:1.28; margin-bottom:12px; }
+  .modal p{ color:var(--ink-soft); font-size:14.5px; line-height:1.65; margin-bottom:20px; }
+  .modal-meta{ display:flex; flex-wrap:wrap; gap:10px 22px; padding-top:16px; border-top:1px solid var(--border); }
+  .modal-meta div{ font-family:var(--font-mono); }
+  .modal-meta span{ display:block; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+  .modal-meta b{ font-size:13px; font-weight:600; }
+  .modal-link{
+    display:inline-flex; align-items:center; gap:8px; margin-top:22px; padding:11px 18px; border-radius:9px;
+    background:var(--ink); color:var(--bg); text-decoration:none; font-family:var(--font-mono); font-size:12.5px;
+    letter-spacing:.03em; transition:transform .15s ease, opacity .15s;
+  }
+  .modal-link:hover{ transform:translateY(-2px); opacity:.9; }
+
+  /* ===================== FOOTER ===================== */
+  footer{ border-top:1px solid var(--border); padding:34px 0 46px; }
+  .foot-grid{ display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:28px; }
+  @media (max-width:760px){ .foot-grid{ grid-template-columns:1fr; } }
+  footer h5{ font-family:var(--font-mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:0 0 10px; }
+  footer p, footer li{ font-size:12.8px; color:var(--ink-soft); line-height:1.6; }
+  footer ul{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:5px; }
+  footer a{ text-decoration:none; color:var(--ink-soft); }
+  footer a:hover{ color:var(--glow); }
+</style>
+</head>
+<body>
+
+<div class="ambient" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 2 3 7l9 5 9-5-9-5Z"/><path d="M3 12l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg></span>
+      <span>HERD SIGNAL</span>
+    </div>
+    <div class="topbar-meta">
+      <span id="clockNow"></span>
+      <span class="live-pill"><span class="dot"></span> Tracking live</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="dot"></span> AI &amp; ML in the global dairy sector</div>
+        <h1>The <em>signal</em><br>inside the herd.</h1>
+        <p>A running, function-by-function map of how artificial intelligence and machine learning are reshaping dairy worldwide — health, genetics, feed, machinery, safety, product and platforms — pulled from research papers, industry press and conference programs, and refreshed daily.</p>
+        <div class="hero-actions">
+          <button class="btn primary" onclick="document.getElementById('controls').scrollIntoView({behavior:'smooth'})">Explore the feed</button>
+          <button class="btn" onclick="setRange('day')">See yesterday</button>
+        </div>
+      </div>
+      <div class="hero-stage" id="heroStage">
+        <div class="hero-inner" id="heroInner">
+          <canvas id="netCanvas"></canvas>
+          <div class="hub"><div class="hub-ring"></div><div class="hub-ring r2"></div>
+            <div><b>AI ×<br>DAIRY</b><span id="hubCount">— tracked</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="wrap">
+      <div class="stat-row" id="statRow"></div>
+    </div>
+  </section>
+
+  <section class="charts">
+    <div class="wrap" style="display:grid;grid-template-columns:1.35fr 1fr;gap:18px;">
+      <div class="card">
+        <h3>Momentum — last 12 months</h3>
+        <div class="chart-scroll" style="position:relative;">
+          <svg id="trendSvg" viewBox="0 0 640 150" preserveAspectRatio="none"></svg>
+          <div class="trend-tip" id="trendTip"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Developments by function</h3>
+        <div id="barChart"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="controls" id="controls">
+    <div class="wrap">
+      <div class="control-row">
+        <div class="seg" id="rangeSeg"></div>
+        <div class="datebox">
+          <label for="customDate" class="eyebrow" style="margin:0;">Or pick a day</label>
+          <input type="date" id="customDate">
+        </div>
+        <div class="spacer"></div>
+        <div class="result-count" id="resultCount"></div>
+      </div>
+      <div class="filter-label">Function</div>
+      <div class="chip-row" id="chipRow"></div>
+      <div class="filter-label">Region</div>
+      <div class="chip-row" id="countryRow"></div>
+    </div>
+  </section>
+
+  <section class="feed-section">
+    <div class="wrap">
+      <div class="feed-head">
+        <h2 id="feedTitle">This week's pulse</h2>
+        <span class="eyebrow" id="feedSub"></span>
+      </div>
+      <div class="feed-grid" id="feedGrid"></div>
+    </div>
+  </section>
+</main>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" id="modalBox" role="dialog" aria-modal="true">
+    <button class="modal-close" id="modalClose" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+    </button>
+    <div class="modal-cat" id="modalCat"><span class="sw"></span><span id="modalCatLabel"></span></div>
+    <h3 id="modalTitle"></h3>
+    <p id="modalSummary"></p>
+    <div class="modal-meta">
+      <div><span>Reported</span><b id="modalDate"></b></div>
+      <div><span>Region</span><b id="modalRegion"></b></div>
+      <div><span>Source</span><b id="modalSourceName"></b></div>
+    </div>
+    <a class="modal-link" id="modalLink" target="_blank" rel="noopener">Read the source ↗</a>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap foot-grid">
+    <div>
+      <h5>About this tracker</h5>
+      <p>Herd Signal curates publicly reported AI/ML developments across the dairy value chain — from peer-reviewed research and preprints to industry press, cooperative platforms and conference programs. Entries with a specific report date show the full date; entries known only to the month are shown as "Mon YYYY." Day/Yesterday filtering only surfaces entries with a confirmed date.</p>
+    </div>
+    <div>
+      <h5>Coverage window</h5>
+      <p id="footRange">—</p>
+      <p>New items are added daily by an automated research pass; this page redeploys to the same link each time.</p>
+    </div>
+    <div>
+      <h5>Primary sources referenced</h5>
+      <ul>
+        <li><a href="https://uscdcb.com/" target="_blank" rel="noopener">CDCB — Council on Dairy Cattle Breeding</a></li>
+        <li><a href="https://www.dairyherd.com/" target="_blank" rel="noopener">Dairy Herd</a></li>
+        <li><a href="https://dairynews.today/" target="_blank" rel="noopener">DairyNews Today</a></li>
+        <li><a href="https://www.journalofdairyscience.org/" target="_blank" rel="noopener">Journal of Dairy Science</a></li>
+        <li><a href="https://arxiv.org/" target="_blank" rel="noopener">arXiv preprints</a></li>
+        <li><a href="https://www.sciencedirect.com/" target="_blank" rel="noopener">ScienceDirect</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- category metadata ---------- */
+  var CATS = {
+    health:        { label:"Animal Health",              order:8, icon:'<polyline points="2,12 7,12 9,6 13,18 16,12 22,12"/>' },
+    breeding:      { label:"Breeding & Genetics",         order:7, icon:'<path d="M7 3c0 5 10 5 10 9s-10 4-10 9"/><path d="M17 3c0 5-10 5-10 9s10 4 10 9"/><line x1="8.2" y1="7" x2="15.8" y2="7"/><line x1="8.2" y1="17" x2="15.8" y2="17"/>' },
+    nutrition:     { label:"Nutrition & Feeding",         order:4, icon:'<path d="M12 22c5-1 7-5 7-10a7 7 0 0 0-7-7 7 7 0 0 0-7 7c0 5 2 9 7 10Z"/><path d="M12 22V9"/>' },
+    engineering:   { label:"Engineering & Automation",    order:1, icon:'<circle cx="12" cy="12" r="7" stroke-dasharray="3.4 2.6"/><circle cx="12" cy="12" r="2.4"/>' },
+    quality:       { label:"Quality & Food Safety",       order:3, icon:'<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z"/><polyline points="9,12 11,14 15,10"/>' },
+    product:       { label:"Product Development",         order:5, icon:'<path d="M9 2h6"/><path d="M10 2v6l-5.2 9a2 2 0 0 0 1.7 3h11a2 2 0 0 0 1.7-3L14 8V2"/><line x1="7.5" y1="14" x2="16.5" y2="14"/>' },
+    sustainability:{ label:"Sustainability & Traceability", order:6, icon:'<path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 3v9l6 3"/>' },
+    digital:       { label:"Digital Platforms & Innovation", order:2, icon:'<circle cx="5" cy="6" r="2.4"/><circle cx="19" cy="6" r="2.4"/><circle cx="12" cy="18" r="2.4"/><line x1="7" y1="7.2" x2="10.3" y2="16.4"/><line x1="17" y1="7.2" x2="13.7" y2="16.4"/>' }
+  };
+  var CAT_ORDER = Object.keys(CATS).sort(function(a,b){ return CATS[a].order-CATS[b].order; });
+
+  /* ---------- dataset ---------- */
+  var DATA = [
+    {id:"h1",date:"2026-08-04",precise:true,cat:"health",country:"USA",title:"24/7 AI Camera Monitoring Reshapes Herd Health Rounds",summary:"Continuous computer-vision monitoring is catching lameness, illness and calving issues earlier than twice-daily visual checks.",region:"USA",source:"Dairy Herd",url:"https://www.dairyherd.com/news"},
+    {id:"h2",date:"2026-04-01",precise:false,cat:"health",country:"N. Ireland",title:"GEA's CattleEye Tracks Lameness and Body Condition Live",summary:"Camera-based AI scores gait and body condition at every parlour pass, flagging at-risk cows before symptoms are visible to the eye.",region:"N. Ireland / Global",source:"RealAgriculture",url:"https://www.realagriculture.com/2026/04/tracking-lameness-and-body-score-with-ai-powered-cattleeye"},
+    {id:"h3",date:"2026-01-01",precise:false,cat:"health",country:"Global",title:"Back-Shape Deep Learning Hits 97% Lameness Accuracy",summary:"A keypoint-tracking model mapped 12 points along 260 Holsteins' backs and separated lame from sound cows with near-perfect accuracy.",region:"Research",source:"ScienceDirect",url:"https://www.sciencedirect.com/science/article/pii/S0010482525013903"},
+    {id:"h4",date:"2025-08-01",precise:false,cat:"health",country:"Global",title:"Pose Estimation Plus LSTMs Automate Gait Scoring",summary:"A new architecture pairs pose-estimation keypoints with bidirectional LSTMs to score cow locomotion straight from barn video.",region:"Research",source:"arXiv",url:"https://arxiv.org/pdf/2508.10643"},
+    {id:"h5",date:"2025-07-01",precise:false,cat:"health",country:"Global",title:"Battery-Free LoRa Sensors Bring AI Monitoring Off-Grid",summary:"A maintenance-free LoRa condition-monitoring system pairs low-power sensors with a hybrid AI model to watch herd health without daily upkeep.",region:"Research",source:"arXiv",url:"https://arxiv.org/pdf/2507.17156"},
+    {id:"h6",date:"2025-07-29",precise:true,cat:"health",country:"Africa",title:"AI Ear Tags Cut Livestock Mortality 15–20% Across Africa",summary:"Edge-processed collars and ear tags catching disease and heat stress early are already changing loss rates in Sub-Saharan dairy pilots.",region:"Sub-Saharan Africa",source:"DairyReporter",url:"https://www.dairyreporter.com/Article/2025/07/29/ai-boosts-dairy-efficiency-across-sub-saharan-africa/"},
+
+    {id:"b1",date:"2026-08-12",precise:true,cat:"breeding",country:"USA",title:"CDCB Launches First National Genomic Evaluation for Calf Health",summary:"New PTAs for resistance to diarrhea and respiratory disease let producers select replacement heifers on genetics, not just luck.",region:"USA",source:"Bovine Vet Online",url:"https://www.bovinevetonline.com/news/cdcb-launches-first-national-genetic-evaluations-calf-health"},
+    {id:"b2",date:"2026-07-31",precise:true,cat:"breeding",country:"USA",title:"August 2026 Evaluations Rebuild Fertility Genetics",summary:"CDCB's overhaul refines fertility traits and adds \"First Service to Conception,\" the biggest re-tooling of the model since genomics arrived.",region:"USA",source:"Dairy Herd",url:"https://www.dairyherd.com/news/new-math-merit-how-august-2026-evaluations-are-modernizing-dairy-genetics"},
+    {id:"b3",date:"2026-08-07",precise:true,cat:"breeding",country:"India",title:"ICAR-IVRI Advances Indigenous Cattle Breeding Tech",summary:"A new breeding-technology platform aims to strengthen the genetics of India's native dairy breeds.",region:"India",source:"DairyNews Today",url:"https://dairynews.today/"},
+    {id:"b4",date:"2026-05-27",precise:true,cat:"breeding",country:"USA",title:"What the New Calf-Health Traits Mean for Producers",summary:"A field guide to reading and applying CDCB's first calf-health PTAs when deciding which heifers to keep.",region:"USA",source:"Select Sires",url:"https://www.selectsires.com/article/ss-blog/2026/05/27/what-dairy-producers-need-to-know-about-cdcb-new-calf-health-traits"},
+    {id:"b5",date:"2026-02-01",precise:false,cat:"breeding",country:"USA",title:"Machine Learning Predicts Breeding Value From Robot-Milk Data",summary:"ML models now mine automatic-milking-system behavior logs to predict genomic breeding values in North American Holsteins.",region:"USA / Canada",source:"Journal of Dairy Science",url:"https://www.journalofdairyscience.org/article/S0022-0302(24)00497-1/fulltext"},
+    {id:"b6",date:"2026-03-01",precise:false,cat:"breeding",country:"Global",title:"Methane Efficiency and Heat Resilience Go Mainstream",summary:"Once-experimental traits — methane efficiency, heat tolerance, polled genetics — are now commercially selectable through genomic-AI pipelines.",region:"Global",source:"The Bullvine",url:"https://www.thebullvine.com/genetic-evaluation-system/genomics-meets-artificial-intelligence-transforming-dairy-cattle-breeding-strategies/"},
+
+    {id:"n1",date:"2026-06-01",precise:false,cat:"nutrition",country:"Global",title:"Precision Feeding Cuts Manure Nitrogen 14%",summary:"AI-tuned individual rations lowered dietary crude protein about 9.7% and manure nitrogen about 14%, adding roughly $137 of net income per cow a year.",region:"Global",source:"Trop. Anim. Health & Production",url:"https://link.springer.com/article/10.1007/s11250-026-05077-8"},
+    {id:"n2",date:"2026-05-01",precise:false,cat:"nutrition",country:"Global",title:"AI Feeding Advisors Move Into Everyday Herd Management",summary:"A review of decision-support tools shows AI recommendations shifting from research pilots into daily ration and management calls.",region:"Global",source:"Animal Frontiers",url:"https://doi.org/10.1093/af/vfaf059"},
+    {id:"n3",date:"2026-02-01",precise:false,cat:"nutrition",country:"Global",title:"Automated Dosing Trims Feed Waste up to 25%",summary:"Farms running AI-guided automated feeders report 12–25% less feed waste and 5–10% higher milk yield versus manual feeding.",region:"Global",source:"AgProud",url:"https://www.agproud.com/articles/63105-precision-decisions-how-ai-will-shape-dairy-performance-in-2026"},
+    {id:"n4",date:"2026-01-01",precise:false,cat:"nutrition",country:"USA",title:"Sensor-Linked Mixers Reach Mid-Size Barns",summary:"A new wave of TMR mixers with built-in load sensors and AI dosing controllers is trickling down from mega-dairies to family-scale barns.",region:"USA",source:"Cattle Daily",url:"https://cattledaily.com/new-feed-technologies-for-cattle/"},
+
+    {id:"e1",date:"2026-06-01",precise:false,cat:"engineering",country:"Global",title:"Milking Robots Converge on Quarter-Level Milk Data",summary:"Lely, DeLaval, GEA, BouMatic and Fullwood's latest boxes all now capture quarter-level milk-quality readings on every single milking.",region:"Global",source:"The Bullvine",url:"https://www.thebullvine.com/dairy-technology-2026-robotics-sensors-ai-and-real-world-roi/"},
+    {id:"e2",date:"2026-05-01",precise:false,cat:"engineering",country:"USA",title:"Smart Cameras Become the Fastest-Adopted Barn Tech",summary:"AI camera systems are spreading through dairy barns faster than any other precision technology this year.",region:"USA",source:"Dairy Herd",url:"https://www.dairyherd.com/news/dairy-production/rise-ai-powered-smart-cameras-dairy-farming"},
+    {id:"e3",date:"2026-08-07",precise:true,cat:"engineering",country:"India",title:"Solar-Powered AI Chillers Cut Spoilage in Maharashtra",summary:"Solar milk-chilling units with AI-monitored temperature control are rolling out to village-level collection points.",region:"India",source:"DairyNews Today",url:"https://dairynews.today/"},
+    {id:"e4",date:"2026-11-10",precise:true,tag:"upcoming",cat:"engineering",country:"Germany",title:"EuroTier 2026 Puts 'Intelligence in Animal Farming' Center Stage",summary:"Hanover's flagship livestock fair devotes its main theme to camera-plus-sensor robotic retrofits and AI barn systems.",region:"Germany / Global",source:"EuroTier / DLG",url:"https://www.eurotier.com/en/news/robotics-in-livestock-farming"},
+    {id:"e5",date:"2026-03-01",precise:false,cat:"engineering",country:"Global",title:"Inside Lely's Autonomous Milking Robots",summary:"A deep dive into the engineering and welfare tradeoffs behind fully autonomous milking robots now running on commercial farms.",region:"Global",source:"IEEE Spectrum",url:"https://spectrum.ieee.org/lely-dairy-robots"},
+
+    {id:"q1",date:"2026-04-28",precise:true,cat:"quality",country:"India",title:"Findability Sciences Launches LactaAI for Dairy Plants",summary:"A new industrial-AI platform targets ₹2.35–28.2 crore in annual value per plant through yield gains and lower energy intensity.",region:"India / Global",source:"AgroSpectrum India",url:"https://agrospectrumindia.com/2026/04/28/findability-sciences-launches-lactaai-industrial-ai-platform-built-for-dairy-plant.html"},
+    {id:"q2",date:"2026-02-01",precise:false,cat:"quality",country:"Global",title:"Inline NIR Plus AI Catches Contamination in the Pipe",summary:"Near-infrared sensing paired with AI now flags fat, protein and contamination shifts while milk is still moving through the line.",region:"Global",source:"Dairy Processing",url:"https://www.dairyprocessing.com/articles/4264-advanced-inspection-systems-bolster-food-safety-product-integrity"},
+    {id:"q3",date:"2026-01-01",precise:false,cat:"quality",country:"Global",title:"Vision Inspection Lines Hit 1,200 Units a Minute",summary:"AI vision systems now run packaging lines at over 1,200 units per minute at 99%+ accuracy, paying back cost in 6–12 months.",region:"Global",source:"iFactory",url:"https://ifactoryapp.com/industries/food-manufacturing/ai-vision-inspection-dairy-processing"},
+    {id:"q4",date:"2026-03-01",precise:false,cat:"quality",country:"Global",title:"Antibiotic-Residue AI Testing Hits 99.2% Accuracy",summary:"Automated residue screening cuts sample turnaround from 24 hours to 15 minutes and lowers recall risk by roughly a third.",region:"Global",source:"Industry data",url:"https://worldmetrics.org/ai-in-the-dairy-industry-statistics/"},
+    {id:"q5",date:"2026-05-01",precise:false,cat:"quality",country:"Global",title:"Review Maps AI's Reach Across Cheese Manufacturing",summary:"From coagulation control to ripening prediction, a new review catalogs where AI is entering the cheese vat.",region:"Global",source:"ScienceDirect",url:"https://www.sciencedirect.com/science/article/abs/pii/S0924224426001937"},
+
+    {id:"p1",date:"2026-06-01",precise:false,cat:"product",country:"Global",title:"IFF's 2026 Dairy Trends Report Bets on 'Mood Food'",summary:"AI-mined trend data points to interactive whipped-cheese formats and indulgence snacking as 2026's breakout dairy formats.",region:"Global",source:"IFF",url:"https://www.iff.com/media/news/2026-dairy-trends-report/"},
+    {id:"p2",date:"2025-11-01",precise:false,cat:"product",country:"Global",title:"AI Palette Flags Six Breakout Dairy Flavors",summary:"An AI trend-mining platform surfaced gianduja chocolate, hojicha and pistachio butter as the next wave of dairy flavor launches.",region:"Global",source:"Prepared Foods",url:"https://www.preparedfoods.com/articles/130534-ai-platform-reveals-top-emerging-dairy-flavors-and-ingredients-in-2025"},
+    {id:"p3",date:"2026-02-01",precise:false,cat:"product",country:"Global",title:"AI Sensory Models Predict Taste Before the Panel Does",summary:"Machine-learning models now score how consumers will rate a formulation's taste, texture and appearance ahead of human panels.",region:"Global",source:"Dairy Processing",url:"https://www.dairyprocessing.com/articles/2972-leveraging-ai-to-revolutionize-product-development"},
+    {id:"p4",date:"2026-01-01",precise:false,cat:"product",country:"Global",title:"AI Shortens Dairy R&D Cycles",summary:"Processors report faster reformulation and less costly trial-and-error as generative tools enter the product-development lab.",region:"Global",source:"Dairy Processing",url:"https://www.dairyprocessing.com/articles/4134-ai-enhancing-r-and-d-for-dairy-processors"},
+    {id:"p5",date:"2026-08-06",precise:true,cat:"product",country:"China",title:"Mengniu Unveils AI-Driven 'Three-Pillar' Innovation Strategy",summary:"China's largest dairy group ties its next product wave to an AI-driven innovation strategy announced at the World Dairy Conference.",region:"China",source:"DairyNews Today",url:"https://dairynews.today/"},
+
+    {id:"s1",date:"2026-04-01",precise:false,cat:"sustainability",country:"Global",title:"'Rumen Digital Twin' Models Methane Cuts of Up to 75%",summary:"Trained on 20,000+ ruminants across 25 countries, an AI rumen model simulates diets that could cut modeled methane by up to three-quarters.",region:"Global",source:"Dairy Producer",url:"https://www.dairyproducer.com/ai-rumen-digital-twin-dairy-methane-reduction/"},
+    {id:"s2",date:"2025-09-01",precise:false,cat:"sustainability",country:"Israel",title:"Cross-Farm AI Validates a Methane-Cutting Feed Additive",summary:"An AI model trained on rumen-microbiome data from Israeli herds was validated for predicting additive performance across 13 commercial dairies.",region:"Israel / Global",source:"Frontiers Sust. Food Systems",url:"https://www.frontiersin.org/journals/sustainable-food-systems/articles/10.3389/fsufs.2025.1548223/full"},
+    {id:"s3",date:"2026-08-07",precise:true,cat:"sustainability",country:"Japan",title:"Snow Brand and Alltech Japan Launch AI Emissions Project",summary:"A joint project pairs AI monitoring with feed strategy to chip away at the carbon footprint of Japanese dairy herds.",region:"Japan",source:"DairyNews Today",url:"https://dairynews.today/"},
+    {id:"s4",date:"2026-03-01",precise:false,cat:"sustainability",country:"Global",title:"Hybrid Blockchain-AI Traces Milk From Cow to Carton",summary:"A proof-of-concept model pairs blockchain's tamper-proof ledger with AI anomaly detection to trace milk provenance end to end.",region:"Global",source:"ScienceDirect",url:"https://www.sciencedirect.com/science/article/pii/S1366554525005800"},
+    {id:"s5",date:"2026-02-01",precise:false,cat:"sustainability",country:"Global",title:"Blockchain Framework Targets Dairy Supply-Chain Waste",summary:"An AI-matched, blockchain-logged framework aims to cut waste by better aligning dairy supply with real demand.",region:"Global",source:"ScienceDirect",url:"https://www.sciencedirect.com/science/article/pii/S2666188825000991"},
+
+    {id:"d1",date:"2026-08-11",precise:true,cat:"digital",country:"USA",title:"Digital-Twin Herds Let Vets Test Decisions First",summary:"Whole-farm modeling software lets veterinarians simulate a management change on a virtual replica herd before touching the real one.",region:"USA",source:"Dairy Herd",url:"https://www.dairyherd.com/news"},
+    {id:"d2",date:"2026-08-03",precise:true,cat:"digital",country:"Africa",title:"FAO and Smart Africa Push AI Tools From Pilot to Scale",summary:"The third Innovate Africa Challenge is built to carry continent-wide AI agriculture pilots — dairy included — into real deployment.",region:"Africa",source:"AgriFocus Africa",url:"https://agrifocusafrica.com/2026/08/03/fao-and-smart-africa-launch-third-innovate-africa-challenge-to-push-ai-agriculture-tools-from-pilot-to-deployment/"},
+    {id:"d3",date:"2026-05-01",precise:false,cat:"digital",country:"India",title:"Amul Turns 50 Years of Co-op Data Into 'Amul AI'",summary:"The world's largest dairy cooperative launched a platform giving every member farmer round-the-clock guidance in their own language.",region:"India",source:"AI News",url:"https://www.artificialintelligence-news.com/news/amul-ai-dairy-farming-platform-india/"},
+    {id:"d4",date:"2026-04-01",precise:false,cat:"digital",country:"India",title:"Stellapps Expands ML Forecasting Across India's Milk Co-ops",summary:"IoT sensors feeding machine-learning models now flag anomalies and forecast yield across a growing share of India's cooperative milk network.",region:"India",source:"Industry press",url:"https://www.dairytech.ai/"},
+    {id:"d5",date:"2026-01-01",precise:false,cat:"digital",country:"India",title:"Doodhvale Raises $1M to Push AI Into D2C Delivery",summary:"Fresh funding will go toward AI-driven demand forecasting and delivery-route optimization for a direct-to-consumer dairy brand.",region:"India",source:"Indian Startup News",url:"https://indianstartupnews.com/funding/indian-dairy-startup-doodhvale-farms-raises-1-million-in-funding-to-invest-in-ai-and-technology-12144839"},
+    {id:"d6",date:"2026-07-30",precise:true,cat:"digital",country:"USA",title:"AI, Immigration and the Beef Boom Reshape US Dairy's Outlook",summary:"Industry analysis ties AI adoption to two other forces — immigration policy and record beef prices — squeezing US dairy's next decade.",region:"USA",source:"Dairy Herd",url:"https://www.dairyherd.com/news/business/beyond-bulk-tank-how-ai-immigration-and-beef-boom-are-shaping-future-us-dairy"}
+  ];
+
+  var MS_DAY = 86400000;
+  var NOW = new Date();
+  function startOfDay(d){ var x=new Date(d); x.setHours(0,0,0,0); return x; }
+  var TODAY0 = startOfDay(NOW);
+
+  DATA.forEach(function(d){ d._d = new Date(d.date+"T00:00:00"); d._future = d._d.getTime() > TODAY0.getTime(); });
+
+  var countryCounts={};
+  DATA.forEach(function(d){ countryCounts[d.country]=(countryCounts[d.country]||0)+1; });
+  var COUNTRY_ORDER = Object.keys(countryCounts).sort(function(a,b){
+    if(a==="Global") return -1; if(b==="Global") return 1;
+    return countryCounts[b]-countryCounts[a];
+  });
+
+  function fmtDate(d){
+    var months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return d.precise ? (months[d._d.getMonth()]+" "+d._d.getDate()+", "+d._d.getFullYear())
+                      : (months[d._d.getMonth()]+" "+d._d.getFullYear());
+  }
+  function relLabel(d){
+    if(d.tag==="upcoming") return "Upcoming";
+    var diffDays = Math.round((TODAY0.getTime()-startOfDay(d._d).getTime())/MS_DAY);
+    if(d.precise){
+      if(diffDays===0) return "Today";
+      if(diffDays===1) return "Yesterday";
+      if(diffDays>1 && diffDays<7) return diffDays+" days ago";
+    }
+    return fmtDate(d);
+  }
+
+  /* ---------- state ---------- */
+  var state = { range:"week", customDay:null, cats:new Set(CAT_ORDER), countries:new Set(COUNTRY_ORDER) };
+
+  var RANGES = [
+    {k:"today", label:"Today"},
+    {k:"day", label:"Yesterday"},
+    {k:"week", label:"This Week"},
+    {k:"month", label:"This Month"},
+    {k:"year", label:"Last 12 Mo."},
+    {k:"all", label:"All Time"}
+  ];
+
+  function inRange(item){
+    if(state.customDay){
+      return !item._future && startOfDay(item._d).getTime()===state.customDay.getTime();
+    }
+    if(item._future) return state.range==="all";
+    var diffDays = (TODAY0.getTime()-startOfDay(item._d).getTime())/MS_DAY;
+    switch(state.range){
+      case "today": return diffDays===0;
+      case "day": return diffDays===1;
+      case "week": return diffDays>=0 && diffDays<7;
+      case "month": return diffDays>=0 && diffDays<31;
+      case "year": return diffDays>=0 && diffDays<366;
+      default: return true;
+    }
+  }
+
+  function filtered(){
+    return DATA.filter(function(d){ return state.cats.has(d.cat) && state.countries.has(d.country) && inRange(d); })
+               .sort(function(a,b){ return b._d-a._d; });
+  }
+
+  /* ---------- render: controls ---------- */
+  var rangeSeg = document.getElementById("rangeSeg");
+  RANGES.forEach(function(r){
+    var b=document.createElement("button");
+    b.textContent=r.label; b.dataset.k=r.k;
+    b.onclick=function(){ setRange(r.k); };
+    rangeSeg.appendChild(b);
+  });
+  window.setRange = function(k){
+    state.range=k; state.customDay=null;
+    document.getElementById("customDate").value="";
+    syncControls(); render();
+  };
+
+  var customDate = document.getElementById("customDate");
+  customDate.max = TODAY0.toISOString().slice(0,10);
+  customDate.addEventListener("change", function(){
+    if(this.value){ state.customDay = startOfDay(new Date(this.value+"T00:00:00")); }
+    else { state.customDay = null; }
+    syncControls(); render();
+  });
+
+  var chipRow = document.getElementById("chipRow");
+  function buildChips(){
+    chipRow.innerHTML="";
+    var all=document.createElement("button");
+    all.className="chip allchip active"; all.textContent="All functions";
+    all.onclick=function(){ state.cats=new Set(CAT_ORDER); buildChips(); render(); };
+    chipRow.appendChild(all);
+    CAT_ORDER.forEach(function(k){
+      var c=document.createElement("button");
+      c.className="chip"+(state.cats.has(k)&&state.cats.size<8?" active":"");
+      c.style.setProperty("--c","var(--cat-"+k+")");
+      c.innerHTML='<span class="sw"></span>'+CATS[k].label;
+      c.onclick=function(){
+        if(state.cats.size===8){ state.cats=new Set([k]); }
+        else if(state.cats.has(k)){ state.cats.delete(k); if(state.cats.size===0) state.cats=new Set(CAT_ORDER); }
+        else { state.cats.add(k); }
+        buildChips(); render();
+      };
+      chipRow.appendChild(c);
+    });
+  }
+  buildChips();
+
+  var countryRow = document.getElementById("countryRow");
+  function buildCountryChips(){
+    countryRow.innerHTML="";
+    var all=document.createElement("button");
+    all.className="chip allchip active"; all.textContent="All regions";
+    all.onclick=function(){ state.countries=new Set(COUNTRY_ORDER); buildCountryChips(); render(); };
+    countryRow.appendChild(all);
+    COUNTRY_ORDER.forEach(function(k){
+      var c=document.createElement("button");
+      c.className="chip country"+(state.countries.has(k)&&state.countries.size<COUNTRY_ORDER.length?" active":"");
+      c.style.setProperty("--c","var(--glow)");
+      c.textContent=k;
+      c.onclick=function(){
+        if(state.countries.size===COUNTRY_ORDER.length){ state.countries=new Set([k]); }
+        else if(state.countries.has(k)){ state.countries.delete(k); if(state.countries.size===0) state.countries=new Set(COUNTRY_ORDER); }
+        else { state.countries.add(k); }
+        buildCountryChips(); render();
+      };
+      countryRow.appendChild(c);
+    });
+  }
+  buildCountryChips();
+
+  function syncControls(){
+    Array.prototype.forEach.call(rangeSeg.children, function(b){
+      b.classList.toggle("active", !state.customDay && b.dataset.k===state.range);
+    });
+  }
+  syncControls();
+
+  /* ---------- render: stats ---------- */
+  function renderStats(){
+    var total=DATA.filter(function(d){return !d._future;}).length;
+    var thisWeek=DATA.filter(function(d){ if(d._future) return false; var dd=(TODAY0-startOfDay(d._d))/MS_DAY; return dd>=0&&dd<7; }).length;
+    var row=document.getElementById("statRow");
+    var items=[
+      {l:"Developments tracked", v:total, s:"since Jul 2025"},
+      {l:"New this week", v:thisWeek, s:"last 7 days"},
+      {l:"Functions covered", v:8, s:"health → platforms"},
+      {l:"Countries & regions", v:COUNTRY_ORDER.length, s:"click a chip to isolate one"},
+      {l:"Refresh cadence", v:"24h", s:"auto-updated daily"}
+    ];
+    row.innerHTML="";
+    items.forEach(function(it){
+      var el=document.createElement("div"); el.className="stat";
+      el.innerHTML='<div class="eyebrow">'+it.l+'</div><b>'+it.v+'</b><small>'+it.s+'</small>';
+      row.appendChild(el);
+    });
+    document.getElementById("hubCount").textContent=total+" tracked";
+  }
+
+  /* ---------- render: bar chart (by function) ---------- */
+  function renderBars(){
+    var counts={}; CAT_ORDER.forEach(function(k){counts[k]=0;});
+    DATA.forEach(function(d){ if(!d._future) counts[d.cat]++; });
+    var order = CAT_ORDER.slice().sort(function(a,b){return counts[b]-counts[a];});
+    var max = Math.max.apply(null, order.map(function(k){return counts[k];}));
+    var el=document.getElementById("barChart"); el.innerHTML="";
+    order.forEach(function(k){
+      var pct = Math.max(8, Math.round(counts[k]/max*100));
+      var row=document.createElement("div"); row.className="bar-row";
+      row.innerHTML =
+        '<div class="bar-label">'+CATS[k].label+'</div>'+
+        '<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%;background:var(--cat-'+k+')"><span>'+counts[k]+'</span></div></div>';
+      el.appendChild(row);
+    });
+  }
+
+  /* ---------- render: trend chart (12mo) ---------- */
+  function renderTrend(){
+    var months=[];
+    for(var i=11;i>=0;i--){
+      var m=new Date(TODAY0.getFullYear(), TODAY0.getMonth()-i, 1);
+      months.push({y:m.getFullYear(), m:m.getMonth(), label:["J","F","M","A","M","J","J","A","S","O","N","D"][m.getMonth()], count:0});
+    }
+    DATA.forEach(function(d){
+      if(d._future) return;
+      months.forEach(function(mo){ if(d._d.getFullYear()===mo.y && d._d.getMonth()===mo.m) mo.count++; });
+    });
+    var W=640,H=150,pad=8;
+    var max=Math.max.apply(null, months.map(function(m){return m.count;}))||1;
+    var stepX = (W-pad*2)/(months.length-1);
+    var pts = months.map(function(m,i){
+      var x=pad+i*stepX;
+      var y=H-pad-( (m.count/max) * (H-pad*2-18) );
+      return {x:x,y:y,m:m};
+    });
+    var line = pts.map(function(p,i){ return (i===0?"M":"L")+p.x.toFixed(1)+","+p.y.toFixed(1); }).join(" ");
+    var area = line+" L"+pts[pts.length-1].x.toFixed(1)+","+(H-pad)+" L"+pts[0].x.toFixed(1)+","+(H-pad)+" Z";
+
+    var svg=document.getElementById("trendSvg");
+    var gradId="trendGrad";
+    svg.innerHTML =
+      '<defs><linearGradient id="'+gradId+'" x1="0" y1="0" x2="0" y2="1">'+
+      '<stop offset="0%" stop-color="var(--accent)" stop-opacity="0.32"/>'+
+      '<stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>'+
+      '<line x1="'+pad+'" y1="'+(H-pad)+'" x2="'+(W-pad)+'" y2="'+(H-pad)+'" stroke="var(--border)" stroke-width="1"/>'+
+      '<path d="'+area+'" fill="url(#'+gradId+')" stroke="none"/>'+
+      '<path d="'+line+'" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+
+    pts.forEach(function(p,i){
+      var dot=document.createElementNS("http://www.w3.org/2000/svg","circle");
+      dot.setAttribute("cx",p.x); dot.setAttribute("cy",p.y); dot.setAttribute("r", i===pts.length-1?4:3);
+      dot.setAttribute("fill", i===pts.length-1?"var(--accent)":"var(--surface)");
+      dot.setAttribute("stroke","var(--accent)"); dot.setAttribute("stroke-width","1.6");
+      svg.appendChild(dot);
+
+      var lbl=document.createElementNS("http://www.w3.org/2000/svg","text");
+      lbl.setAttribute("x",p.x); lbl.setAttribute("y",H-1); lbl.setAttribute("text-anchor","middle");
+      lbl.setAttribute("font-family","var(--font-mono)"); lbl.setAttribute("font-size","9");
+      lbl.setAttribute("fill","var(--muted)"); lbl.textContent=p.m.label;
+      svg.appendChild(lbl);
+
+      var hit=document.createElementNS("http://www.w3.org/2000/svg","circle");
+      hit.setAttribute("cx",p.x); hit.setAttribute("cy",p.y); hit.setAttribute("r",14);
+      hit.setAttribute("fill","transparent"); hit.style.cursor="pointer";
+      var tip=document.getElementById("trendTip");
+      hit.addEventListener("pointerenter", function(){
+        var rect=svg.getBoundingClientRect();
+        var px = rect.left + (p.x/W)*rect.width;
+        var py = rect.top + (p.y/H)*rect.height;
+        tip.style.left=(px-svg.parentElement.getBoundingClientRect().left)+"px";
+        tip.style.top=(py-svg.parentElement.getBoundingClientRect().top)+"px";
+        tip.textContent=p.m.count+" development"+(p.m.count===1?"":"s")+" — "+["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][p.m.m]+" "+p.m.y;
+        tip.style.opacity=1;
+      });
+      hit.addEventListener("pointerleave", function(){ tip.style.opacity=0; });
+      svg.appendChild(hit);
+    });
+  }
+
+  /* ---------- render: feed ---------- */
+  function titleFor(){
+    if(state.customDay){
+      var months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      return months[state.customDay.getMonth()]+" "+state.customDay.getDate()+", "+state.customDay.getFullYear();
+    }
+    var map={today:"Today's developments", day:"Yesterday's developments", week:"This week's pulse", month:"This month, at a glance", year:"The last 12 months", all:"Everything we're tracking"};
+    return map[state.range];
+  }
+
+  function renderFeed(){
+    var items=filtered();
+    document.getElementById("feedTitle").textContent=titleFor();
+    var subParts=[];
+    subParts.push(state.cats.size<8 ? Array.from(state.cats).map(function(k){return CATS[k].label;}).join(" · ") : "All functions");
+    if(state.countries.size<COUNTRY_ORDER.length) subParts.push(Array.from(state.countries).join(" · "));
+    document.getElementById("feedSub").textContent = subParts.join("  —  ");
+    document.getElementById("resultCount").textContent = items.length+" result"+(items.length===1?"":"s");
+
+    var grid=document.getElementById("feedGrid");
+    grid.innerHTML="";
+    if(items.length===0){
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1;"><b>No tracked developments in this slice.</b>Try Week or Month — coverage is sparse day-by-day and fills in as the daily refresh runs.</div>';
+      return;
+    }
+    items.forEach(function(d){
+      var card=document.createElement("article");
+      card.className="card-item"; card.style.setProperty("--c","var(--cat-"+d.cat+")");
+      card.tabIndex=0;
+      card.innerHTML =
+        '<div class="card-top">'+
+          '<div class="card-cat"><span class="sw"></span>'+CATS[d.cat].label+'</div>'+
+          '<div class="card-date">'+relLabel(d)+(d.tag==="upcoming"?' <span class="badge-upcoming">Upcoming</span>':'')+'</div>'+
+        '</div>'+
+        '<h4></h4><p></p>'+
+        '<div class="card-bottom">'+
+          '<div class="card-region">'+d.region+'</div>'+
+          '<a class="card-src" target="_blank" rel="noopener"></a>'+
+        '</div>';
+      card.querySelector("h4").textContent=d.title;
+      card.querySelector("p").textContent=d.summary;
+      var a=card.querySelector(".card-src"); a.href=d.url; a.textContent=d.source+" ↗";
+      a.addEventListener("click", function(e){ e.stopPropagation(); });
+      attachTilt(card);
+      card.addEventListener("click", function(){ openModal(d); });
+      card.addEventListener("keydown", function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); openModal(d); } });
+      grid.appendChild(card);
+    });
+  }
+
+  function attachTilt(card){
+    var raf=null;
+    card.addEventListener("pointermove", function(e){
+      var rect=card.getBoundingClientRect();
+      var px=(e.clientX-rect.left)/rect.width, py=(e.clientY-rect.top)/rect.height;
+      if(raf) cancelAnimationFrame(raf);
+      raf=requestAnimationFrame(function(){
+        card.style.setProperty("--ry",((px-0.5)*14)+"deg");
+        card.style.setProperty("--rx",(-(py-0.5)*14)+"deg");
+        card.style.setProperty("--lift","-6px");
+        card.style.setProperty("--scale","1.025");
+        card.style.setProperty("--mx",(px*100)+"%");
+        card.style.setProperty("--my",(py*100)+"%");
+      });
+    });
+    card.addEventListener("pointerleave", function(){
+      card.style.setProperty("--rx","0deg"); card.style.setProperty("--ry","0deg");
+      card.style.setProperty("--lift","0px"); card.style.setProperty("--scale","1");
+    });
+  }
+
+  /* ---------- zoom modal ---------- */
+  var modalBackdrop=document.getElementById("modalBackdrop");
+  var modalBox=document.getElementById("modalBox");
+  var lastFocused=null;
+  function openModal(d){
+    modalBox.style.setProperty("--c","var(--cat-"+d.cat+")");
+    document.getElementById("modalCatLabel").textContent=CATS[d.cat].label;
+    document.getElementById("modalTitle").textContent=d.title;
+    document.getElementById("modalSummary").textContent=d.summary;
+    document.getElementById("modalDate").textContent=relLabel(d)==="Upcoming"?fmtDate(d)+" (upcoming)":fmtDate(d);
+    document.getElementById("modalRegion").textContent=d.region;
+    document.getElementById("modalSourceName").textContent=d.source;
+    var link=document.getElementById("modalLink"); link.href=d.url;
+    lastFocused=document.activeElement;
+    modalBackdrop.classList.add("open");
+    document.getElementById("modalClose").focus();
+    document.body.style.overflow="hidden";
+  }
+  function closeModal(){
+    modalBackdrop.classList.remove("open");
+    document.body.style.overflow="";
+    if(lastFocused) lastFocused.focus();
+  }
+  document.getElementById("modalClose").addEventListener("click", closeModal);
+  modalBackdrop.addEventListener("click", function(e){ if(e.target===modalBackdrop) closeModal(); });
+  document.addEventListener("keydown", function(e){ if(e.key==="Escape" && modalBackdrop.classList.contains("open")) closeModal(); });
+
+  function footRange(){
+    var min=DATA.reduce(function(m,d){return d._d<m?d._d:m;}, DATA[0]._d);
+    var max=DATA.filter(function(d){return !d._future;}).reduce(function(m,d){return d._d>m?d._d:m;}, DATA[0]._d);
+    var months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    document.getElementById("footRange").textContent =
+      months[min.getMonth()]+" "+min.getFullYear()+" — "+months[max.getMonth()]+" "+max.getDate()+", "+max.getFullYear()+" ("+DATA.filter(function(d){return !d._future;}).length+" entries)";
+  }
+
+  function render(){ renderFeed(); }
+
+  /* ---------- hero mind map ---------- */
+  var stage=document.getElementById("heroStage");
+  var inner=document.getElementById("heroInner");
+  var canvas=document.getElementById("netCanvas");
+  var ctx=canvas.getContext("2d");
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var nodeEls=[];
+
+  function buildNodes(){
+    nodeEls.forEach(function(n){ n.remove(); });
+    nodeEls=[];
+    CAT_ORDER.forEach(function(k,i){
+      var btn=document.createElement("button");
+      btn.className="node"; btn.style.setProperty("--dot-color","var(--cat-"+k+")");
+      var count=DATA.filter(function(d){return d.cat===k && !d._future;}).length;
+      btn.innerHTML =
+        '<div class="node-dot"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7">'+CATS[k].icon+'</svg></div>'+
+        '<div class="node-label">'+CATS[k].label+'</div>'+
+        '<div class="node-count">'+count+'</div>';
+      btn.addEventListener("click", function(){
+        state.cats=new Set([k]); buildChips(); render();
+        document.getElementById("controls").scrollIntoView({behavior:"smooth", block:"start"});
+      });
+      inner.appendChild(btn);
+      nodeEls.push(btn);
+    });
+  }
+
+  var positions=[];
+  function layout(){
+    var rect=stage.getBoundingClientRect();
+    var cx=rect.width/2, cy=rect.height/2;
+    var r=Math.min(rect.width,rect.height)*0.40;
+    positions = CAT_ORDER.map(function(k,i){
+      var angle = -Math.PI/2 + i*(2*Math.PI/CAT_ORDER.length);
+      return { x: cx + r*Math.cos(angle), y: cy + r*Math.sin(angle) };
+    });
+    nodeEls.forEach(function(el,i){
+      el.style.left=positions[i].x+"px"; el.style.top=positions[i].y+"px";
+    });
+    var dpr=Math.min(window.devicePixelRatio||1, 2);
+    canvas.width=rect.width*dpr; canvas.height=rect.height*dpr;
+    canvas.style.width=rect.width+"px"; canvas.style.height=rect.height+"px";
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    dust = makeDust(rect.width, rect.height);
+  }
+
+  function makeDust(w,h){
+    var arr=[]; var n=Math.round((w*h)/9000);
+    for(var i=0;i<n;i++){ arr.push({x:Math.random()*w, y:Math.random()*h, r:Math.random()*1.4+0.3, s:Math.random()*0.4+0.08, phase:Math.random()*Math.PI*2}); }
+    return arr;
+  }
+  var dust=[];
+
+  var styleRoot=getComputedStyle(document.documentElement);
+  function cssVar(name){ return getComputedStyle(document.body).getPropertyValue(name).trim(); }
+
+  var t=0;
+  function draw(){
+    var rect=stage.getBoundingClientRect();
+    var w=rect.width,h=rect.height,cx=w/2,cy=h/2;
+    ctx.clearRect(0,0,w,h);
+
+    // ambient dust
+    var border = cssVar("--border-strong") || "rgba(120,120,120,.2)";
+    ctx.fillStyle = border;
+    dust.forEach(function(p){
+      var alpha = (Math.sin(t*p.s + p.phase)+1)/2*0.5+0.08;
+      ctx.globalAlpha=alpha;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+    });
+    ctx.globalAlpha=1;
+
+    // links + particles
+    positions.forEach(function(p,i){
+      var k=CAT_ORDER[i];
+      var color = cssVar("--cat-"+k) || "#888";
+      var mx=(cx+p.x)/2, my=(cy+p.y)/2 - 14;
+      ctx.strokeStyle=color; ctx.globalAlpha=0.34; ctx.lineWidth=1.4;
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.quadraticCurveTo(mx,my,p.x,p.y); ctx.stroke();
+      ctx.globalAlpha=1;
+
+      if(!reduceMotion){
+        var prog = (t*0.18 + i*0.16) % 1;
+        var it = 1-prog;
+        var bx = it*it*cx + 2*it*prog*mx + prog*prog*p.x;
+        var by = it*it*cy + 2*it*prog*my + prog*prog*p.y;
+        ctx.fillStyle=color;
+        ctx.beginPath(); ctx.arc(bx,by,2.1,0,Math.PI*2); ctx.fill();
+      }
+    });
+
+    if(!reduceMotion){ t+=0.016; requestAnimationFrame(draw); }
+  }
+
+  // subtle 3D parallax
+  stage.addEventListener("pointermove", function(e){
+    if(reduceMotion) return;
+    var rect=stage.getBoundingClientRect();
+    var px=(e.clientX-rect.left)/rect.width-0.5;
+    var py=(e.clientY-rect.top)/rect.height-0.5;
+    inner.style.transform = "rotateY("+(px*10)+"deg) rotateX("+(-py*10)+"deg)";
+  });
+  stage.addEventListener("pointerleave", function(){ inner.style.transform="rotateY(0deg) rotateX(0deg)"; });
+
+  /* ---------- clock ---------- */
+  function tickClock(){
+    var el=document.getElementById("clockNow");
+    var d=new Date();
+    var opts={weekday:"short", year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit"};
+    el.textContent = d.toLocaleString(undefined, opts);
+  }
+  tickClock(); setInterval(tickClock, 30000);
+
+  /* ---------- init ---------- */
+  buildNodes(); layout();
+  window.addEventListener("resize", layout);
+  renderStats(); renderBars(); renderTrend(); footRange(); render();
+  if(!reduceMotion){ requestAnimationFrame(draw); } else { draw(); }
+})();
+</script>
+</body>
+</html>

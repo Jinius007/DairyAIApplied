@@ -336,8 +336,8 @@ def parse_last_refresh(html: str) -> datetime | None:
 
 def main() -> int:
     html = read_index()
-    today = now.date().isoformat()
     now = datetime.now(timezone.utc)
+    today = now.date().isoformat()
     last = parse_last_refresh(html)
     if last:
         days_since = (now.date() - last.date()).days

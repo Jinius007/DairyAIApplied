@@ -336,13 +336,19 @@ def parse_last_refresh(html: str) -> datetime | None:
 
 def main() -> int:
     html = read_index()
-    today = datetime.now(timezone.utc).date().isoformat()
+    today = now.date().isoformat()
+    now = datetime.now(timezone.utc)
     last = parse_last_refresh(html)
-    since = last if last else datetime.now(timezone.utc) - timedelta(days=14)
-    # Always look back at least 3 days to catch timezone edge cases.
-    lookback = datetime.now(timezone.utc) - timedelta(days=3)
-    if since > lookback:
-        since = lookback
+    if last:
+        days_since = (now.date() - last.date()).days
+        lookback_days = max(7, days_since + 1)
+        since = now - timedelta(days=lookback_days)
+        since = since.replace(hour=0, minute=0, second=0, microsecond=0)
+        day_before_last = last - timedelta(days=1)
+        if since > day_before_last:
+            since = day_before_last
+    else:
+        since = now - timedelta(days=14)
 
     log(f"Refreshing since {since.date().isoformat()} …")
     candidates = fetch_arxiv(since) + fetch_crossref(since)

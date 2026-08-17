@@ -29,18 +29,15 @@ jobs:
         run: python scripts/daily_refresh.py
 
       - name: Commit and push updates
+        env:
+          BRANCH: ${{ github.ref_name }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
           if git diff --staged --quiet; then
             echo "No changes to publish."
-          else
-            git commit -m "$(cat <<'EOF'
-Daily refresh: ingest new dairy AI/ML developments.
-
-Automated pass from arXiv and Crossref updates index.html and redeploys GitHub Pages.
-EOF
-)"
-            git push
+            exit 0
           fi
+          git commit -m "Daily refresh: update dairy AI tracker ($(date -u +%Y-%m-%d))"
+          git push origin "HEAD:${BRANCH}"

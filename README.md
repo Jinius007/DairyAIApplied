@@ -19,6 +19,8 @@ Run the refresh locally:
 
 ```bash
 python scripts/daily_refresh.py
+# or, if Python is unavailable:
+node scripts/daily_refresh.mjs
 ```
 
 Manual trigger: **Actions → Daily tracker refresh → Run workflow** on GitHub.

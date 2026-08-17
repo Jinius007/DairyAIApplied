@@ -417,7 +417,6 @@
         <p>A running, function-by-function repository of how artificial intelligence and machine learning are reshaping dairy worldwide — health, genetics, feed, machinery, safety, product and platforms — pulled from research papers, industry press and conference programs, and refreshed daily.</p>
         <div class="hero-actions">
           <button class="btn primary" onclick="document.getElementById('controls').scrollIntoView({behavior:'smooth'})">Explore the feed</button>
-          <button class="btn" onclick="setRange('day')">See yesterday</button>
         </div>
       </div>
       <div class="hero-stage" id="heroStage">
@@ -460,10 +459,6 @@
         <div class="filter-dd" id="ddFunction"></div>
         <div class="filter-dd" id="ddRegion"></div>
         <div class="filter-dd" id="ddOrg"></div>
-        <div class="datebox">
-          <label for="customDate" class="eyebrow" style="margin:0;">Or pick a day</label>
-          <input type="date" id="customDate">
-        </div>
         <div class="spacer"></div>
         <div class="result-count" id="resultCount"></div>
       </div>
@@ -502,7 +497,7 @@
   <div class="wrap foot-grid">
     <div>
       <h5>About this tracker</h5>
-      <p>Herd Signal curates publicly reported AI/ML developments across the dairy value chain — from peer-reviewed research and preprints to industry press, cooperative platforms and conference programs. Entries with a specific report date show the full date; entries known only to the month are shown as "Mon YYYY." Day/Yesterday filtering only surfaces entries with a confirmed date.</p>
+      <p>Herd Signal curates publicly reported AI/ML developments across the dairy value chain — from peer-reviewed research and preprints to industry press, cooperative platforms and conference programs. Entries with a specific report date show the full date; entries known only to the month are shown as "Mon YYYY."</p>
     </div>
     <div>
       <h5>Coverage window</h5>
@@ -693,27 +688,20 @@
   }
 
   /* ---------- state ---------- */
-  var state = { range:"year", customDay:null, cats:new Set(CAT_ORDER), countries:new Set(COUNTRY_ORDER), orgs:new Set(ORG_ORDER) };
+  var state = { range:"week", cats:new Set(CAT_ORDER), countries:new Set(COUNTRY_ORDER), orgs:new Set(ORG_ORDER) };
 
   var RANGES = [
-    {k:"today", label:"Today"},
-    {k:"day", label:"Yesterday"},
     {k:"week", label:"This Week"},
     {k:"month", label:"This Month"},
-    {k:"year", label:"Last 12 Mo."},
+    {k:"year", label:"This Year"},
     {k:"twoyear", label:"Last 2 Years"},
     {k:"all", label:"All Time"}
   ];
 
   function inRange(item){
-    if(state.customDay){
-      return !item._future && startOfDay(item._d).getTime()===state.customDay.getTime();
-    }
     if(item._future) return state.range==="all";
     var diffDays = (TODAY0.getTime()-startOfDay(item._d).getTime())/MS_DAY;
     switch(state.range){
-      case "today": return diffDays===0;
-      case "day": return diffDays===1;
       case "week": return diffDays>=0 && diffDays<7;
       case "month": return diffDays>=0 && diffDays<31;
       case "year": return diffDays>=0 && diffDays<366;
@@ -741,18 +729,9 @@
     rangeSeg.appendChild(b);
   });
   window.setRange = function(k){
-    state.range=k; state.customDay=null;
-    document.getElementById("customDate").value="";
+    state.range=k;
     syncControls(); render();
   };
-
-  var customDate = document.getElementById("customDate");
-  customDate.max = TODAY0.toISOString().slice(0,10);
-  customDate.addEventListener("change", function(){
-    if(this.value){ state.customDay = startOfDay(new Date(this.value+"T00:00:00")); }
-    else { state.customDay = null; }
-    syncControls(); render();
-  });
 
   /* ---------- filter dropdowns ---------- */
   var CHECK_SVG='<svg viewBox="0 0 16 16" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,8 6.5,11.5 13,4.5"/></svg>';
@@ -822,7 +801,7 @@
 
   function syncControls(){
     Array.prototype.forEach.call(rangeSeg.children, function(b){
-      b.classList.toggle("active", !state.customDay && b.dataset.k===state.range);
+      b.classList.toggle("active", b.dataset.k===state.range);
     });
   }
   syncControls();
@@ -945,11 +924,7 @@
 
   /* ---------- render: feed ---------- */
   function titleFor(){
-    if(state.customDay){
-      var months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      return months[state.customDay.getMonth()]+" "+state.customDay.getDate()+", "+state.customDay.getFullYear();
-    }
-    var map={today:"Today's developments", day:"Yesterday's developments", week:"This week's pulse", month:"This month, at a glance", year:"The last 12 months", twoyear:"The last 2 years", all:"Everything we're tracking"};
+    var map={week:"This week's pulse", month:"This month, at a glance", year:"This year", twoyear:"The last 2 years", all:"Everything we're tracking"};
     return map[state.range];
   }
 
@@ -966,7 +941,7 @@
     var grid=document.getElementById("feedGrid");
     grid.innerHTML="";
     if(items.length===0){
-      grid.innerHTML = '<div class="empty" style="grid-column:1/-1;"><b>No tracked developments in this slice.</b>Try Week or Month — coverage is sparse day-by-day and fills in as the daily refresh runs.</div>';
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1;"><b>No tracked developments in this slice.</b>Try a wider range — This Month, This Year, or All Time.</div>';
       return;
     }
     items.forEach(function(d,idx){

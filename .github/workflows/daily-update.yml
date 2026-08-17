@@ -20,13 +20,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Set up Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: "3.12"
-
       - name: Run daily refresh
-        run: python scripts/daily_refresh.py
+        run: node scripts/daily_refresh.mjs
 
       - name: Commit and push updates
         env:

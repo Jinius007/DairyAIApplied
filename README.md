@@ -10,7 +10,10 @@ Sourced from research papers, industry press, and conference programs; each entr
 
 A GitHub Action (`.github/workflows/daily-update.yml`) runs every day at **06:15 UTC** and:
 
-1. Queries **arXiv** and **Crossref** for new dairy-related AI/ML/robotics/automation papers
+1. Queries multiple sources for new dairy-related AI/ML/robotics/automation items:
+   - **Research:** arXiv, Crossref, PubMed
+   - **Industry RSS:** Ag Proud, DairyNews Today, DairyReporter, The Bullvine, The Cow Tech Report, Lely, Wageningen U&R, Phys.org
+   - **News search:** targeted Google News queries (including university and trade-press sites such as Dairy Herd and Penn State)
 2. Appends verified entries to the `DATA` array in `index.html`
 3. Updates the `last-refresh` meta tag
 4. Commits and pushes to `main`, which redeploys GitHub Pages
@@ -18,9 +21,9 @@ A GitHub Action (`.github/workflows/daily-update.yml`) runs every day at **06:15
 Run the refresh locally:
 
 ```bash
-python scripts/daily_refresh.py
-# or, if Python is unavailable:
 node scripts/daily_refresh.mjs
+# or:
+python scripts/daily_refresh.py
 ```
 
 Manual trigger: **Actions → Daily tracker refresh → Run workflow** on GitHub.
